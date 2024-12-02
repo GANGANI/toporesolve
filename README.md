@@ -1,4 +1,4 @@
-# Entity Disambiguation in Local News Texts using Dedicated Geoparsers and LLMs
+# Entity Disambiguation in News Texts using Dedicated Geoparsers and LLMs
 
 
 # Abstract
