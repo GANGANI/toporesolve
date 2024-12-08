@@ -1,5 +1,22 @@
 # Entity Disambiguation in News Texts using Dedicated Geoparsers and LLMs
 
+# Table of Contents
+
+- [Abstract](#abstract)
+- [Using Windows? Read this.](#using-windows-read-this)
+- [Datasets (Gold standards)](#datasets-gold-standards)
+- [State-of-the-Art Geoparsers](#State-of-the-Art-Geoparsers)
+  - [GATE YODIE](#1-gate-yodie)
+  - [Geoparsepy](#2-geoparsepy-using-windows-terminal-pipenv)
+  - [Cliff-Clavin](#3-cliff-clavin)
+  - [DBpedia Spotlight](#4-dbpedia-spotlight)
+  - [Edinburgh Geoparser](#5-edinburgh-geoparser)
+  - [Mordecai](#6-mordecai3)
+  - [Evaluation](#state-of-the-art-evaluation)
+- [Large Language Models](#large-language-models)
+  - [Non-Finetined Models](#non-finetined-models)
+  - [Finetined Models](#finetuned-models)
+  - [Evaluation](#dec-18th)
 
 # Abstract
 
@@ -30,9 +47,7 @@ cd /mnt/c/Users/YourWindowsUsername/WindowsFolder/filename.txt
 
 All the tools and commands below were run using Ubuntu terminal via WSL, except when explicitly stated otherwise.
 
-# State-of-the-Art Geoparsers
-
-## Datasets (Gold standards)
+# Datasets (Gold standards)
 [text](data/gold_standards)
 
 There are 3 in total, one for GPE, LOC, and FAC entities. The ambiguous toponyms were manually geocoded using Google, Geonames, or OpenStreetMap. They were randomly scraped from local news sites in all 50 states. They are all made of 100 objects, 2 from each US state. 
@@ -51,9 +66,10 @@ Each JSONL file is designed to provide both the geolocation information of vario
     - The `title` field contains the title of the source material.
     - Additional fields like published, `link_extracted_from`, and `media_dets` provide more context about the source, such as the publishing date, where the link was extracted from, and details about the media outlet.
 
-## Installation and Usage
 
-### 1. GATE YODIE
+# State-of-the-Art Geoparsers
+
+## 1. GATE YODIE
 https://cloud.gate.ac.uk/info/help/online-api.html
 
 - Create an account at https://cloud.gate.ac.uk/login/full
@@ -139,8 +155,9 @@ Dbpedia entities are returned so further parsing is required to get the coordina
 
 
 
-### 2. Geoparsepy (using windows terminal pipenv)
+## 2. Geoparsepy (using windows terminal pipenv)
 https://github.com/stuartemiddleton/geoparsepy
+
 ### Installation:
 - Download Postgre: when you install, you will be asked to give a password, take note of this, also you will be asked to select a port: choose  5432 https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 - Install the geoparsepy library
@@ -213,7 +230,7 @@ overpass_query = f"""
 requests.get(overpass_url, params={'data': overpass_query})
 ```
 
-### 3. Cliff-Clavin
+## 3. Cliff-Clavin
 https://github.com/mediacloud/cliff-annotator
 https://pypi.org/project/mediacloud-cliff/
 
@@ -331,7 +348,7 @@ Output:
 }
 ```
 
-### 4. DBpedia Spotlight
+## 4. DBpedia Spotlight
 https://github.com/dbpedia-spotlight/dbpedia-spotlight-model
 
 - Go to Bash terminal and run curl command 
@@ -421,7 +438,7 @@ Output:
 The same outcome will be gotten by using the `requests` library to send a POST request.
 
 
-### 5. Edinburgh Geoparser
+## 5. Edinburgh Geoparser
 https://www.ltg.ed.ac.uk/software/geoparser/
 
 ### Installation
@@ -456,7 +473,7 @@ Gazetteer options
 ```
 
 
-### 6. Mordecai3
+## 6. Mordecai3
 https://github.com/ahalterman/mordecai3
 
 - Install these: mordecai, wget
@@ -585,9 +602,13 @@ docker run -d -p 127.0.0.1:9200:9200 -e "discovery.type=single-node"
 
 # Large Language Models
 
-A total of 5 LLMs were tested in various ways. GPT 4o was tested using the API for a fee. Others were tested via HuggingFace, some of which were fine-tuned prior to testing. The finetuned models (Llama27b, Llama213b, and Mistral7b) were sourced from https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md. The authors trained 5 LLMs on comprehensive datasets derived from news articles, tweets, Wikipedia, etc. Read the full paper [here](https://www.tandfonline.com/doi/full/10.1080/13658816.2024.2405182). Their data, training and testing code can all be found in the github repo linked above.
+A total of 5 LLMs were tested in various ways. GPT-4o-mini was tested using the API for a fee. Others were tested via HuggingFace, some of which were fine-tuned prior to testing. 
+
+## Rgular (Non-Finetined) Models
 
 ## gpt-4o-mini
+
+This GPT model is a more affordable and faster option than **gpt-4o** (which is high-level and used for complex tasks, and more expensive), perfect for lightweight tasks. It costs $0.150 per 1M input tokens as compared to gpt-4o's $2.50 per 1M input tokens. See https://openai.com/api/pricing/ for details.
 
 ### Requirements
 - Create an account on OpenAI's development platform (https://platform.openai.com/)
@@ -598,7 +619,7 @@ A total of 5 LLMs were tested in various ways. GPT 4o was tested using the API f
 - Fill in necessary info (such as payment information, etc)
 - Select credit limit (has upper limit of 100 dollars), and if selecting auto-renewal, choose when to do so and amount to renew with.
 - You can perform tasks in the user iterface, or you can create an API key (with necessary permissions) [here](https://platform.openai.com/api-keys) to use in code.
-- You can view your usage details, how much credit you have left, etc on the [dashboard]([https://platform.openai.com/usage)
+- You can view your usage details, how much credit you have left, etc on the [dashboard](https://platform.openai.com/usage).
 
 ### Usage (Python)
 
@@ -614,8 +635,9 @@ response = client.chat.completions.create(
 )
 ```
 
-Complete code can be found in the models folder.
-Using this API is really fast and efficient. Takes seconds to a few minutes for hundreds of data. Good for those who want quick results and don't mind the money.
+Complete code using gpt4o-mini to perform toponym disambiguation on the datasets can be found [here](models/gpt4.py)
+
+*Note: Using this API is really fast and efficient. Takes seconds to a few minutes for hundreds of data. Good for those who want quick results and don't mind the cost.*
 
 ## Llama2-7B 
 
@@ -641,8 +663,36 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
 model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
 ```
+Complete code using Llama2-7B to perform toponym disambiguation on the datasets can be found [here](models/llama2.py).
 
 * *Note: You need to have a HuggingFace account, access to the model, and an access token. You can request access from the model [card](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf). And you can create an access token with needed permissions here: https://huggingface.co/settings/tokens. This functions similarly to an API key. You can use one access token for as many models you want.*
+
+## Phi3-mini-4k
+
+This model was developed by Microsoft. Similar to Llama2, it can be accessed via HuggingFace. View the model details on the [card](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct).
+
+```py
+# Use a pipeline as a high-level helper
+from transformers import pipeline
+
+messages = [
+    {"role": "user", "content": "Who are you?"},
+]
+pipe = pipeline("text-generation", model="microsoft/Phi-3-mini-4k-instruct", trust_remote_code=True)
+pipe(messages)
+
+# Load model directly
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+tokenizer = AutoTokenizer.from_pretrained("microsoft/Phi-3-mini-4k-instruct", trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained("microsoft/Phi-3-mini-4k-instruct", trust_remote_code=True)
+```
+
+*Note: Loading HuggingFace models take a good amount of time and requires substantial available memory. It is advisable to use GPUs when running the models.*
+
+## Finetuned Models
+
+The finetuned models (Llama27b, Llama213b, and Mistral7b) were sourced from https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md. The authors trained 5 LLMs on comprehensive datasets derived from news articles, tweets, Wikipedia, etc. Read the full paper [here](https://www.tandfonline.com/doi/full/10.1080/13658816.2024.2405182). Their data, training and testing code can all be found in the github repo linked above.
 
 Here, however, we went further by using a fine-tuned version of the model. The model uses **meta-llama/Llama-2-7b-chat-hf** as a base models and builds on top of it by training it on geographic entities within texts.
 
@@ -706,6 +756,7 @@ Highlight key findings. Include summary statistics or plots.
 # References
 
 Fine-tuned models Llama2-7B, Llama2-13B, Mistral7B were developed Hu et al.
+```bibtex
 @article{hu2024toponym,
   title={Toponym resolution leveraging lightweight and open-source large language models and geo-knowledge},
   author={Hu, Xuke and Kersten, Jens and Klan, Friederike and Farzana, Sheikh Mastura},
@@ -714,3 +765,4 @@ Fine-tuned models Llama2-7B, Llama2-13B, Mistral7B were developed Hu et al.
   year={2024},
   publisher={Taylor & Francis}
 }
+```
