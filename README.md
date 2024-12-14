@@ -124,26 +124,6 @@ Output:
                 "dbpInterestingClasses": "owl:Thing",
                 "dbpSpecificClasses": "owl:Thing",
                 "confidence": -0.8
-            },
-            {
-                "indices": [
-                    90,
-                    102
-                ],
-                "inst": "http://dbpedia.org/resource/Delta_Dental",
-                "dbpInterestingClasses": "owl:Thing",
-                "dbpSpecificClasses": "owl:Thing",
-                "confidence": -0.8
-            },
-            {
-                "indices": [
-                    188,
-                    196
-                ],
-                "inst": "http://dbpedia.org/resource/University_of_Oklahoma",
-                "dbpInterestingClasses": "dbpedia-owl:Organisation|dbpedia-owl:Person",
-                "dbpSpecificClasses": "dbpedia-owl:College|dbpedia-owl:Person",
-                "confidence": 0.5016904761904762
             }
         ]
     }
@@ -153,7 +133,7 @@ Dbpedia entities are returned so further parsing is required to get the coordina
 
 **Note:** You can make 800 free header requests a day.
 
-
+Complete code can be found [here](models/state-of-the-art/gate.py)
 
 ## 2. Geoparsepy (using windows terminal pipenv)
 https://github.com/stuartemiddleton/geoparsepy
@@ -184,7 +164,6 @@ nltk.download('wordnet')
 unzip geoparsepy_preprocessed_tables.tar.zip
 tar -xvf geoparsepy_preprocessed_tables.tar
 ```
-
 
 - Create openstreetmap database and extensions by running this in psql:
 ```sql
@@ -229,6 +208,8 @@ overpass_query = f"""
     """
 requests.get(overpass_url, params={'data': overpass_query})
 ```
+
+Complete code can be found [here](models/state-of-the-art/geopaserpy.py)
 
 ## 3. Cliff-Clavin
 https://github.com/mediacloud/cliff-annotator
@@ -313,27 +294,7 @@ Output:
             "population": 1173108018
           }
         ]
-      },
-      "mentions": [
-        {
-          "id": 1261481,
-          "lon": 77.22445,
-          "source": {
-            "charIndex": 37,
-            "string": "New Delhi"
-          },
-          "name": "New Delhi",
-          "countryGeoNameId": "1269750",
-          "countryCode": "IN",
-          "featureCode": "PPLC",
-          "featureClass": "P",
-          "stateCode": "07",
-          "confidence": 1,
-          "lat": 28.63576,
-          "stateGeoNameId": "1273293",
-          "population": 317797
-        }
-      ]
+      }
     },
     "people": [
       {
@@ -347,6 +308,7 @@ Output:
   "version": "2.6.0"
 }
 ```
+Complete code can be found [here](models/state-of-the-art/cliff.py)
 
 ## 4. DBpedia Spotlight
 https://github.com/dbpedia-spotlight/dbpedia-spotlight-model
@@ -395,48 +357,13 @@ Output:
             "@offset": "77",
             "@similarityScore": "0.7628718792600525",
             "@percentageOfSecondRank": "0.31083199190989347"
-        },
-        {
-            "@URI": "http://dbpedia.org/resource/Delta_Dental",
-            "@support": "31",
-            "@types": "Wikidata:Q4830453,Wikidata:Q43229,Wikidata:Q24229398,DUL:SocialPerson,DUL:Agent,Schema:Organization,DBpedia:Organisation,DBpedia:Agent,DBpedia:Company",
-            "@surfaceForm": "Delta Dental",
-            "@offset": "90",
-            "@similarityScore": "0.9999999999943725",
-            "@percentageOfSecondRank": "0.0"
-        },
-        {
-            "@URI": "http://dbpedia.org/resource/Oklahoma",
-            "@support": "47520",
-            "@types": "Wikidata:Q3455524,Schema:Place,Schema:AdministrativeArea,DBpedia:Region,DBpedia:PopulatedPlace,DBpedia:Place,DBpedia:Location,DBpedia:AdministrativeRegion",
-            "@surfaceForm": "Oklahoma",
-            "@offset": "106",
-            "@similarityScore": "0.7628718792606812",
-            "@percentageOfSecondRank": "0.31083199190989347"
-        },
-        {
-            "@URI": "http://dbpedia.org/resource/Dentistry",
-            "@support": "2650",
-            "@types": "",
-            "@surfaceForm": "Dentistry",
-            "@offset": "147",
-            "@similarityScore": "0.987982005348338",
-            "@percentageOfSecondRank": "0.011775576756809526"
-        },
-        {
-            "@URI": "http://dbpedia.org/resource/Dentistry",
-            "@support": "2650",
-            "@types": "",
-            "@surfaceForm": "dental clinic",
-            "@offset": "167",
-            "@similarityScore": "0.9962130354336799",
-            "@percentageOfSecondRank": "0.003801360182647971"
-        }
+        }  
     ]
 }
 ```
 The same outcome will be gotten by using the `requests` library to send a POST request.
 
+Complete code can be found [here](models/state-of-the-art/dpbedia.py)
 
 ## 5. Edinburgh Geoparser
 https://www.ltg.ed.ac.uk/software/geoparser/
@@ -573,6 +500,8 @@ docker run -d -p 127.0.0.1:9200:9200 -e "discovery.type=single-node"
 -v $PWD/geonames_index/:/usr/share/elasticsearch/data elasticsearch:7.10.1
 ```
 
+Complete code can be found [here](models/state-of-the-art/mordecai.py)
+
 ## State of the Art Evaluation
 
 ### GPE (Gold standard: GPE_2023-06-07T160700Z.jsonl)
@@ -604,11 +533,11 @@ docker run -d -p 127.0.0.1:9200:9200 -e "discovery.type=single-node"
 
 A total of 5 LLMs were tested in various ways. GPT-4o-mini was tested using the API for a fee. Others were tested via HuggingFace, some of which were fine-tuned prior to testing. 
 
-## Rgular (Non-Finetined) Models
+## Regular (Non-Finetined) Models
 
 ## gpt-4o-mini
 
-This GPT model is a more affordable and faster option than **gpt-4o** (which is high-level and used for complex tasks, and more expensive), perfect for lightweight tasks. It costs $0.150 per 1M input tokens as compared to gpt-4o's $2.50 per 1M input tokens. See https://openai.com/api/pricing/ for details.
+This GPT model is a more affordable and faster option than **gpt-4o** (which is high-level and used for complex tasks, and hence, more expensive), perfect for lightweight tasks. It costs $0.150 per 1M input tokens as compared to gpt-4o's $2.50 per 1M input tokens. See https://openai.com/api/pricing/ for details.
 
 ### Requirements
 - Create an account on OpenAI's development platform (https://platform.openai.com/)
@@ -688,13 +617,16 @@ tokenizer = AutoTokenizer.from_pretrained("microsoft/Phi-3-mini-4k-instruct", tr
 model = AutoModelForCausalLM.from_pretrained("microsoft/Phi-3-mini-4k-instruct", trust_remote_code=True)
 ```
 
-*Note: Loading HuggingFace models take a good amount of time and requires substantial available memory. It is advisable to use GPUs when running the models.*
+Complete code using Llama2-7B to perform toponym disambiguation on the datasets can be found [here](models/phi3.py).
+
 
 ## Finetuned Models
 
-The finetuned models (Llama27b, Llama213b, and Mistral7b) were sourced from https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md. The authors trained 5 LLMs on comprehensive datasets derived from news articles, tweets, Wikipedia, etc. Read the full paper [here](https://www.tandfonline.com/doi/full/10.1080/13658816.2024.2405182). Their data, training and testing code can all be found in the github repo linked above.
+The finetuned models (Llama27b, Llama213b, and Mistral7b) were sourced from https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md. The authors trained 5 LLMs on comprehensive datasets derived from news articles, tweets, Wikipedia, etc. Read the full paper [here](https://www.tandfonline.com/doi/full/10.1080/13658816.2024.2405182). Their data, training and testing code and instrcutions for running them can all be found in the github repo linked above.
 
-Here, however, we went further by using a fine-tuned version of the model. The model uses **meta-llama/Llama-2-7b-chat-hf** as a base models and builds on top of it by training it on geographic entities within texts.
+### Llama2-7B-LoRA-Toponym-Resolution
+
+The model uses **meta-llama/Llama-2-7b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the HuggingFace model [card] (https://huggingface.co/xukehu/Llama2-7B-LoRA-Toponym-Resolution).
 
 - Start by loading the model and saving it
 ```py
@@ -711,7 +643,8 @@ model = PeftModel.from_pretrained(model, "xukehu/Llama2-7B-LoRA-Toponym-Resoluti
 model.save_pretrained("path_of_the_lora_weights")
 ```
 
-- Run the prediction.py in your terminal. Ensure to edit the code to run on your dataset 
+- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from the repo in your terminal. Ensure to edit the code to run on your dataset. Depending on the format of your datasets, you may need to make some changes to the code.
+
 ```bash
 $BASE_MODEL="meta-llama/Llama-2-7b-chat-hf"
 $LORA_WEIGHTS="path_of_the_lora_weights" 
@@ -719,38 +652,108 @@ $LORA_WEIGHTS="path_of_the_lora_weights"
 python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
 ```
 
-https://huggingface.co/xukehu/Llama2-7B-LoRA-Toponym-Resolution
+### Mistral-7B-LoRA-Toponym-Resolution
 
-https://github.com/uhuohuy/LLM-geocoding/blob/fbb8750f68bd5f605ed074d1d042c58118b0268e/prediction.py
-what we want to accomplish: systems: dedicated geoparsers and LLMs
-LLMs: requirements, installation, usage
-datsets, testing show table
+The model uses **mistral-7B-v0.1-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the HuggingFace model [card] (https://huggingface.co/xukehu/Mistral-7B-LoRA-Toponym-Resolution).
 
-### Non finetuned
+Following same steps as before:
+
+- Start by loading the model and saving it
+```py
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+
+# Load the base model and tokenizer
+model = AutoModelForCausalLM.from_pretrained("kittn/mistral-7B-v0.1-hf")
+tokenizer = AutoTokenizer.from_pretrained("kittn/mistral-7B-v0.1-hf")
+
+# Load LoRA weights for toponym resolution
+model = PeftModel.from_pretrained(model, "xukehu/Mistral-7B-LoRA-Toponym-Resolution")
+
+model.save_pretrained("path_of_the_lora_weights")
+```
+
+- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from the repo in your terminal. Ensure to edit the code to use the correct model and to run on your dataset. Depending on the format of your datasets, you may need to make some changes to the code.
+
+```bash
+$BASE_MODEL="kittn/mistral-7B-v0.1-hf"
+$LORA_WEIGHTS="path_of_the_lora_weights" 
+
+python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
+```
+
+### Llama2-13B-LoRA-Toponym-Resolution
+
+The model uses **Llama-2-13b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the HuggingFace model [card] (https://huggingface.co/xukehu/Llama2-13B-LoRA-Toponym-Resolution).
+
+Following same steps as before:
+
+- Start by loading the model and saving it
+```py
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+
+# Load the base model and tokenizer
+model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-13b-chat-hf")
+tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-13b-chat-hf")
+
+# Load LoRA weights for toponym resolution
+model = PeftModel.from_pretrained(model, "xukehu/Llama2-13B-LoRA-Toponym-Resolution")
+
+model.save_pretrained("path_of_the_lora_weights")
+```
+
+- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from the repo in your terminal. Ensure to edit the code to use the correct model and to run on your dataset. Depending on the format of your datasets, you may need to make some changes to the code.
+
+```bash
+$BASE_MODEL="meta-llama/Llama-2-13b-chat-hf"
+$LORA_WEIGHTS="path_of_the_lora_weights" 
+
+python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
+```
+
+### Important Note
+
+Loading HuggingFace models take a good amount of time and requires substantial available memory. It is advisable to use GPUs when running the models. For running and testing all the models (with the exception of gpt-4o-mini), High Performance Computing (HPC) systems provided by William and Mary were utilized. These systems are accessible to W&M students and faculty and provide access to GPUs for data intense projects. See https://www.wm.edu/offices/it/services/researchcomputing/atwm/
 
 ## Results
-Highlight key findings. Include summary statistics or plots.
 
-## GPE
-|| Llama27b|Mistral7b|Llama213b|
-|---|---|---|---|
-|**Precision**| 0.8586|0.85|0.8788
-|**Recall**| 0.9659 |0.977|0.9667
-|**F1**| 0.9096|0.909|0.9188
+### GPE
+|| gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
+|---|---|---|---|---|---|---|
+|**Precision**| 0.902|0.784|0.765|0.8586|0.85|0.8788
+|**Recall**| 1.0 |1.0|0.949|0.9659 |0.977|0.9667
+|**F1**| 0.948|0.879|0.847|0.9096|0.909|0.9188
 
-## LOC
-|| Llama27b|Mistral7b|Llama213b|
-|---|---|---|---|
-|**Precision**| 0.5281|0.5778|0.5435
-|**Recall**| 0.7833|0.8125|0.8333
-|**F1**| 0.6297|0.6757|0.6577
+### LOC
+|| gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
+|---|---|---|---|---|---|---|
+|**Precision**| 0.7|0.45|0.495| 0.5281|0.5778|0.5435
+|**Recall**| 0.972|0.957|0.870| 0.7833|0.8125|0.8333
+|**F1**| 0.813|0.613|0.632| 0.6297|0.6757|0.6577
 
-## FAC
-|| Llama27b|Mistral7b|Llama213b|
-|---|---|---|---|
-|**Precision**| 0.7561|0.8429|0.8
-|**Recall**| 0.7561|0.6484|0.7442
-|**F1**| 0.7561|0.7323|0.7707
+### FAC
+|| gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
+|---|---|---|---|---|---|---|
+|**Precision**| 0.931|0.667|0.693| 0.7561|0.8429|0.8
+|**Recall**| 1.0|0.957|0.813| 0.7561|0.6484|0.7442
+|**F1**| 0.964|0.785|0.748| 0.7561|0.7323|0.7707
+
+
+## Evaluation Process
+
+The evaluation for these tools follow similar formats and share major components.
+
+1. **Evaluation Function**: The core function takes two arguments: a path to the gold standard dataset file which contains the data to be evaluated, and a `match_proximity_radius_miles` parameter with a default value of 25 miles. If the coordinates prodcued by the tool are within 25 miles of the reference coordinates, that is counted as a **True** match, else **False**. If the geoparsing tools doesn't give an output coordinate, that is **null**. 
+
+Note: For GPEs such as states, countries, continents, etc, a distance radius was not used. Instead, the entire geographical polygon of the state or country was used as the radius. This is because any point within the state counts as the state, even if it is more than 25 miles away from the reference coordinates.
+
+2. **Reading and Processing Data**: The script reads the dataset line by line. Each line is parsed into a dictionary. It then processes each place in the file. The process involves:
+    - Extracting reference coordinates and context sentences.
+    - Comparing the reference coordinates with the coordinates produced by the geoparsing tool.
+    - Appending the results, including the reference place and resolved places, to the report json.
+
+3. **Result Analysis**: The script updates the TP, FP, and FN counts based on whether the result matched the reference.
 
 
 # References
