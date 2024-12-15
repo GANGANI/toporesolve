@@ -15,16 +15,23 @@
   - [Evaluation](#state-of-the-art-evaluation)
 - [Large Language Models](#large-language-models)
   - [Non-Finetined Models](#non-finetined-models)
+    - [GPT4o-mini](#gpt-4o-mini)
+    - [Llama2-7B](#llama2-7b)
+    - [Phi3-mini-4k](#phi3-mini-4k)
   - [Finetined Models](#finetuned-models)
-  - [Evaluation](#dec-18th)
+    - [Llama2-7B](#llama2-7b-lora-toponym-resolution)
+    - [Mistral-7B](#mistral-7b-lora-toponym-resolution)
+    - [Llama2-13B](#llama2-13b-lora-toponym-resolution)
+  - [LLMs Evaluation](#results)
+- [Acknowledgements](#acknowledgements)
 
 # Abstract
 
-Entity disambiguation, the task of resolving ambiguities in text to map entities to specific, unique identifiers (e.g., geocoordinates for toponyms), has been a critical challenge in natural language processing (NLP). Over the years, several state-of-the-art tools have emerged to tackle this problem. Traditional systems like Mordecai3, Cliff Clavin, the Edinburgh Parser, and DBpedia Spotlight rely on structured rule-based methods, knowledge bases, and statistical models. These tools have demonstrated substantial success, particularly when paired with domain-specific datasets. However, they often struggle with the nuanced understanding of context required for resolving complex ambiguities.
+Entity disambiguation, the process of resolving ambiguities in text to link entities to unique identifiers (e.g., geocoordinates for place names), is a key challenge in natural language processing (NLP). Tools like Mordecai3, Cliff Clavin, the Edinburgh Parser, and DBpedia Spotlight use rule-based methods, knowledge bases, and statistical models. While effective with domain-specific datasets, these tools often struggle with understanding complex contexts.
 
-With the recent advancements in artificial intelligence, particularly Large Language Models (LLMs), a paradigm shift is underway. Models like GPT, Llama, and other foundation models have showcased remarkable capabilities in contextual reasoning, making them increasingly viable alternatives for tasks like entity disambiguation. These LLMs excel in leveraging both explicit information and subtle contextual cues, often surpassing traditional methods in accuracy and flexibility. However, despite their superior performance, LLMs come with significant computational costs. They require substantial computational resources, often necessitating GPUs with high memory capacities, and may take a long time to run, especially when processing large datasets. This makes them less practical for real-time applications unless powerful hardware and optimized pipelines are in place.
+Advances in AI, particularly Large Language Models (LLMs) like GPT and Llama, are transforming this field. LLMs excel at contextual reasoning, often outperforming traditional tools in accuracy and flexibility. However, their high computational demands, requiring powerful GPUs and optimized setups, limit their practicality for real-time applications.
 
-This repository evaluates the application of LLMs for entity disambiguation, specifically for toponyms found in local news texts, and compares their performance against established tools. The results offer insights into how LLMs can redefine the state of the art in entity disambiguation, while also providing researchers and practitioners with resources and guidelines for leveraging these models effectively.
+This project evaluates LLMs for disambiguating toponyms in local news texts, comparing their performance with established tools. It highlights the potential of LLMs to set new benchmarks in entity disambiguation and provides practical insights for researchers and practitioners.
 
 # Using Windows? Read this.
 
@@ -533,7 +540,7 @@ Complete code can be found [here](models/state-of-the-art/mordecai.py)
 
 A total of 5 LLMs were tested in various ways. GPT-4o-mini was tested using the API for a fee. Others were tested via HuggingFace, some of which were fine-tuned prior to testing. 
 
-## Regular (Non-Finetined) Models
+## Regular (Non-Finetuned) Models
 
 ## gpt-4o-mini
 
@@ -756,9 +763,10 @@ Note: For GPEs such as states, countries, continents, etc, a distance radius was
 3. **Result Analysis**: The script updates the TP, FP, and FN counts based on whether the result matched the reference.
 
 
-# References
+# Acknowledgements
 
-Fine-tuned models Llama2-7B, Llama2-13B, Mistral7B were developed Hu et al.
+This project benefited from the fine-tuned models Llama2-7B, Llama2-13B, and Mistral7B developed by Hu et al. in their work "Toponym resolution leveraging lightweight and open-source large language models and geo-knowledge" published in the International Journal of Geographical Information Science (2024). For further details, please refer to the following citation:
+
 ```bibtex
 @article{hu2024toponym,
   title={Toponym resolution leveraging lightweight and open-source large language models and geo-knowledge},
@@ -769,3 +777,5 @@ Fine-tuned models Llama2-7B, Llama2-13B, Mistral7B were developed Hu et al.
   publisher={Taylor & Francis}
 }
 ```
+
+Additionally, this work was supported by the computational resources and technical assistance provided by William & Mary Research Computing. Their resources have been instrumental in achieving the results reported here. Learn more at [Research Computing at W&M](https://www.wm.edu/it/rc)
