@@ -3,17 +3,17 @@ import sys
 import time
 
 from geopy.distance import great_circle
-from mordecai3 import Geoparser
-
+from cliff.api import Cliff
 from util import dumpJsonToFile
 from util import getDictFromJson
 from util import genericErrorInfo
 from shapely.geometry import shape, Point
 
+
 def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
 
     print('\nevaluate_place_resolver():')
-
+    
     TP = 0
     FP = 0
     FN = 0
@@ -32,7 +32,7 @@ def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
             
             ref_coords = (place['lat_long'][0], place['lat_long'][1])
             sentences = '.'.join([s['sent'] for s in place['context']['sents']])
-            result = mordecai3_geoparse(place['entity'], sentences, ref_coords, match_proximity_radius_miles, place['is_state'])
+            result = cliff_clavin(place['entity'], sentences, ref_coords, match_proximity_radius_miles, place['is_state'])
             
             eval_report['experiments'].append({
                 'reference_place': place,
@@ -46,6 +46,7 @@ def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
             else:
                 FN += 1
 
+
     params = {}
     params['search_loc_city'] = 'multiple'
     params['search_loc_state'] = 'multiple'
@@ -57,12 +58,13 @@ def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
     eval_report['params'] = params
     eval_report['runtime_seconds'] = time.time() - start_time
 
-    expr_params = 'mo'
+    expr_params = 'cc'
 
     eval_rep_file = '{}.eval.{}.json'.format(gold_file_path.replace('.jsonl', ''), expr_params)
     eval_rep_file = eval_rep_file.replace('/disambiguated/', '/disambiguated/eval-results/')
     
     dumpJsonToFile(eval_rep_file, eval_report)
+
 
 def jaccard_sim(str0, str1):
 
@@ -105,33 +107,33 @@ def is_within_boundary(coords, geojson_boundary):
     polygon = shape(geojson_boundary['features'][0]['geometry'])
     return polygon.contains(point)
 
-def mordecai3_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_miles, is_state):
+def cliff_clavin(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_miles, is_state):
     
-    geo = Geoparser()
+    cliff = Cliff('http://localhost:8080')
     matched_ref = None
     topo = []
 
     try:
-        res = geo.geoparse_doc(doc)
+        res = cliff.parse_text(doc)
 
         print('ambig_topo:', ambig_topo)
         print('sentence:')
         print(doc.strip())
         
-        for i in range(len(res['geolocated_ents'])):
-            g = res['geolocated_ents'][i]
+        for i in range(len(res["results"]["places"]["mentions"])):
+            g = res["results"]["places"]["mentions"][i]
             loc_coords = (g['lat'], g['lon'])
 
             dist_miles = great_circle(loc_coords, gold_ref_lat_long).miles
-            sim_name = jaccard_sim(ambig_topo,g['search_name'])
+            sim_name = jaccard_sim(ambig_topo,g['name'])
 
             g['sim_name'] = sim_name
-            print('\t', g['search_name'], sim_name, dist_miles)
+            print('\t', g['name'], sim_name, dist_miles)
             
-        res['geolocated_ents'] = sorted(res['geolocated_ents'], key=lambda x: x['sim_name'], reverse=True)
+        res["results"]["places"]["mentions"] = sorted(res["results"]["places"]["mentions"], key=lambda x: x['sim_name'], reverse=True)
         
-        if( len(res['geolocated_ents']) != 0 ):
-            topo = res['geolocated_ents'][0]
+        if( len(res["results"]["places"]["mentions"]) != 0 ):
+            topo =res["results"]["places"]["mentions"][0]
 
             loc_coords = (topo['lat'], topo['lon'])
             dist_miles = great_circle(loc_coords, gold_ref_lat_long).miles
@@ -140,7 +142,7 @@ def mordecai3_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radiu
                 matched_ref = is_within_boundary(loc_coords, bounds)
             else:
                 matched_ref = True if dist_miles <= match_proximity_radius_miles else False
-            out = '\t{}, dist. (miles) from ref: {:.2f}, matched ref: {}\n\t{}\n'.format(topo['search_name'], dist_miles, matched_ref, '{} vs. {}'.format(loc_coords, gold_ref_lat_long) )
+            out = '\t{}, dist. (miles) from ref: {:.2f}, matched ref: {}\n\t{}\n'.format(topo['name'], dist_miles, matched_ref, '{} vs. {}'.format(loc_coords, gold_ref_lat_long) )
             print(out)
             topo = [topo]
 

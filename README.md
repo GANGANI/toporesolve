@@ -540,28 +540,28 @@ Complete code can be found [here](models/state-of-the-art/mordecai.py)
 
 ## State of the Art Evaluation
 
-### GPE (Gold standard: [GPE_2023-06-07T160700Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
+### GPE (Gold standard: [GPE_2024_05_21T134100Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
-|**Precision**| 0.8182 | 0.356 | 0.292 | 0.375 | 0.425 | 0.381 
-|**Recall**| 0.7159 | 0.727 | 0.824 | 0.857 | 0.607 | 0.640 
-|**F1-Score**| 0.7629 | 0.478 | 0.431 | 0.522 | 0.500 | 0.478 
+|Precision| **0.8182** | 0.356 | 0.5543 | 0.7526 | 0.7544 | 0.6867
+|Recall| 0.7159 | 0.727 | 0.8361| **0.9359** | 0.4886 | 0.7500
+|F1-Score| 0.7629 | 0.478 | 0.6668 | **0.834**| 0.5928 | 0.7170
 
 
-### LOC (Gold standard: [LOC_2023-06-07T160700Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
+### LOC (Gold standard: [LOC_2024_05_21T134100Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
-|**Precision**| 0.4839 | 0.282 | 0.253 | 0.5542 | 0.5098 | 0.4725
-|**Recall**| 0.4286 | 0.478 | 0.525| 0.7077 | 0.3377 | 0.7963
-|**F1-Score**| 0.4545 | 0.355 | 0.3414 | 0.6216 | 0.4064 | 0.5930
+|Precision| 0.4839 | 0.282 | 0.253 | **0.5542** | 0.5098 | 0.4725
+|Recall| 0.4286 | 0.478 | 0.525| 0.7077 | 0.3377 | **0.7963**|
+|F1-Score| 0.4545 | 0.355 | 0.3414 | **0.6216** | 0.4064 | 0.5930
 
 
-### FAC (Gold standard: [FAC_2023-06-07T160700Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
+### FAC (Gold standard: [FAC_2024_05_21T134100Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
-|**Precision**| 0.3611 | 0.235 | 0.2262 | 0.4857 | 0.5818 | 0.4271
-|**Recall**| 0.4643 | 0.32 | 0.5135 | 0.5152 | 0.4051 | 0.8723
-|**F1-Score**| 0.4064 | 0.271 | 0.3140 | 0.5 | 0.4778 | 0.5734
+|**Precision**| 0.3611 | 0.235 | 0.2262 | 0.4857 | **0.5818** | 0.4271
+|**Recall**| 0.4643 | 0.32 | 0.5135 | 0.5152 | 0.4051 | **0.8723**|
+|**F1-Score**| 0.4064 | 0.271 | 0.3140 | 0.5 | 0.4778 | **0.5734**|
 
 To run the evaluation code you would need the following additional modules: geopy, shapely, NwalaTextUtils
 
@@ -578,9 +578,6 @@ This GPT model is a more affordable and faster option than **gpt-4o** (which is 
 ### Requirements
 - Create an account on OpenAI's development platform (https://platform.openai.com/)
 - Go to Settings. Under Organization, select Billing. There click Add payment details.
-
-    <img src="image.png" alt="Image description" width="500">
-
 - Fill in necessary info (such as payment information, etc)
 - Select credit limit (has upper limit of 100 dollars), and if selecting auto-renewal, choose when to do so and amount to renew with.
 - You can perform tasks in the user iterface, or you can create an API key (with necessary permissions) [here](https://platform.openai.com/api-keys) to use in code.
@@ -754,21 +751,21 @@ Loading HuggingFace models take a good amount of time and requires substantial a
 
 ## Results
 
-### GPE (Gold standard: [GPE_2023-06-07T160700Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
+### GPE (Gold standard: [GPE_2024_05_21T134100Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
 |Precision| **0.902**|0.784|0.765|0.8586|0.85|0.8788
 |Recall| **1.0** |**1.0**|0.949|0.9659 |0.977|0.9667
 |F1-Score| **0.948**|0.879|0.847|0.9096|0.909|0.9188
 
-### LOC (Gold standard: [LOC_2023-06-07T160700Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
+### LOC (Gold standard: [LOC_2024_05_21T134100Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
 |Precision| **0.7**|0.45|0.495| 0.5281|0.5778|0.5435
 |Recall| **0.972**|0.957|0.870| 0.7833|0.8125|0.8333
 |F1-Score| **0.813**|0.613|0.632| 0.6297|0.6757|0.6577
 
-### FAC (Gold standard: [FAC_2023-06-07T160700Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
+### FAC (Gold standard: [FAC_2024_05_21T134100Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
 |Precision| **0.931**|0.667|0.693| 0.7561|0.8429|0.8

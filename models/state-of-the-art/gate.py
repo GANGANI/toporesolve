@@ -9,6 +9,7 @@ from NwalaTextUtils.textutils import genericErrorInfo
 
 from util import dumpJsonToFile
 from util import getDictFromJson
+from shapely.geometry import shape, Point
 
 def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
 
@@ -31,7 +32,7 @@ def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
             
             ref_coords = (place['lat_long'][0], place['lat_long'][1])
             sentences = '.'.join([s['sent'] for s in place['context']['sents']])
-            result = gate_geoparse(place['entity'], sentences, ref_coords, match_proximity_radius_miles)
+            result = gate_geoparse(place['entity'], sentences, ref_coords, match_proximity_radius_miles, place['is_state'])
             
             eval_report['experiments'].append({
                 'reference_place': place,
@@ -173,8 +174,25 @@ def jaccard_sim(str0, str1):
 
     return jaccardFor2Sets(firstSet, secondSet)
 
+def load_geojson_boundary(is_state):
+    try:
+        with open(f'/mnt/c/Users/great/Desktop/news-deserts-nlp-greatness/rule-based/boundaries/{is_state}') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"No boundary file found for {is_state}.")
+        return None
+    
+def is_within_boundary(coords, geojson_boundary):
+    if geojson_boundary is None:
+        return False
+    safe_loc_coords = (coords[0] if coords[0] is not None else 0,
+                   coords[1] if coords[1] is not None else 0)
 
-def gate_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_miles):
+    point = Point(safe_loc_coords[1], safe_loc_coords[0])  # Note: Point(longitude, latitude)
+    polygon = shape(geojson_boundary['features'][0]['geometry'])
+    return polygon.contains(point)
+
+def gate_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_miles, is_state):
     
     matched_ref = None
     topo = []
@@ -210,7 +228,11 @@ def gate_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_mil
 
             loc_coords = (topo['lat'], topo['lon'])
             dist_miles = great_circle(loc_coords, gold_ref_lat_long).miles
-            matched_ref = True if dist_miles <= match_proximity_radius_miles else False
+            if is_state:
+                bounds = load_geojson_boundary(is_state)
+                matched_ref = is_within_boundary(loc_coords, bounds)
+            else:
+                matched_ref = True if dist_miles <= match_proximity_radius_miles else False
             out = '\t{}, dist. (miles) from ref: {:.2f}, matched ref: {}\n\t{}\n'.format(topo['name'], dist_miles, matched_ref, '{} vs. {}'.format(loc_coords, gold_ref_lat_long) )
             print(out)
             topo = [topo]
@@ -225,13 +247,7 @@ def gate_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_mil
         'matched_ref': matched_ref
     }
 
-# sents = ["Family business of 50-plus years invests in local projects, small or large\nCustomer-focused teams aim to help you get it right the first time\nBy Makayla-Courtney McGeeney, Vermont News & Media correspondent\nJan 22, 2023\nCharlie Pierson operates a forklift while moving lumber at WW Building Supply in Newfane, Vermont.\n", "Vermont News & Media file photo\nJosh Druke, with WW Building Supply in Newfane, Vermont, stands by the lumber for sale."]
-# doc = '. '.join([s for s in sents])
-# res = gate_geoparse(ambig_topo="Newfane", doc=doc, gold_ref_lat_long=(42.983333, -72.683333), match_proximity_radius_miles=25)
-
-# print(res)
-
-# gold_file_path = 'evaluation/merged/disambiguated/GPE_2023-06-07T160700Z.jsonl'
-# gold_file_path = 'evaluation/merged/disambiguated/LOC_2023-06-07T160700Z.jsonl'
-gold_file_path = 'evaluation/merged/disambiguated/FAC_2023-06-07T160700Z.jsonl'
+gold_file_path = 'evaluation/merged/disambiguated/GPE_2024_05_21T134100Z.jsonl'
+# gold_file_path = 'evaluation/merged/disambiguated/LOC_2024_05_21T134100Z.jsonl'
+# gold_file_path = 'evaluation/merged/disambiguated/FAC_2024_05_21T134100Z.jsonl'
 evaluate_place_resolver(gold_file_path)

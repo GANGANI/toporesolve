@@ -1,19 +1,19 @@
 import json
-import sys
 import time
+import requests
 
 from geopy.distance import great_circle
-from mordecai3 import Geoparser
+
+from NwalaTextUtils.textutils import derefURI
+from NwalaTextUtils.textutils import genericErrorInfo
 
 from util import dumpJsonToFile
 from util import getDictFromJson
-from util import genericErrorInfo
 from shapely.geometry import shape, Point
 
 def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
 
     print('\nevaluate_place_resolver():')
-
     TP = 0
     FP = 0
     FN = 0
@@ -32,7 +32,7 @@ def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
             
             ref_coords = (place['lat_long'][0], place['lat_long'][1])
             sentences = '.'.join([s['sent'] for s in place['context']['sents']])
-            result = mordecai3_geoparse(place['entity'], sentences, ref_coords, match_proximity_radius_miles, place['is_state'])
+            result = db_spotlight(place['entity'], sentences, ref_coords, match_proximity_radius_miles, place['is_state'])
             
             eval_report['experiments'].append({
                 'reference_place': place,
@@ -46,6 +46,7 @@ def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
             else:
                 FN += 1
 
+
     params = {}
     params['search_loc_city'] = 'multiple'
     params['search_loc_state'] = 'multiple'
@@ -57,12 +58,100 @@ def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
     eval_report['params'] = params
     eval_report['runtime_seconds'] = time.time() - start_time
 
-    expr_params = 'mo'
+    expr_params = 'ds'
 
     eval_rep_file = '{}.eval.{}.json'.format(gold_file_path.replace('.jsonl', ''), expr_params)
     eval_rep_file = eval_rep_file.replace('/disambiguated/', '/disambiguated/eval-results/')
     
     dumpJsonToFile(eval_rep_file, eval_report)
+
+
+def annotate_text_with_dbpedia(text):
+    url = "https://api.dbpedia-spotlight.org/en/annotate"
+    
+    data = {
+        "text": text,
+        "confidence": 0.35
+    }
+    
+    headers = {
+        "Accept": "application/json"
+    }
+    response = requests.post(url, data=data, headers=headers)
+    
+    if response.status_code == 200:
+        output = response.json()
+    else:
+        print(f"Request failed with status code {response.status_code}")
+        output = None
+    return output
+
+def get_val_for_key(payload, keys):
+        
+    for opt in keys:
+        if( opt in payload ):
+            return payload[opt]
+
+    return None
+
+def fmt_geocord(coords, link, src, toponym, rank, src_attribute):
+
+        if( coords is None ):
+            return []
+        
+        locs = []
+        for g in coords:
+            
+            if( g.get('type', '') != 'literal' ):
+                continue
+
+            lat_long = g.get('value', '').split(' ')
+            if( len(lat_long) != 2 ):
+                continue
+
+            try:
+                locs.append({ 
+                    'latitude': float(lat_long[0]), 
+                    'longitude': float(lat_long[1]),
+                    'link': link,
+                    'src': src,
+                    'rk_score': rank,
+                    'toponym': toponym
+                })
+            except:
+                genericErrorInfo()
+
+        return locs
+
+def get_dbpedia_coords(data):
+    
+    wikipedia_title = data["@URI"].split('://dbpedia.org/resource/')[-1]
+    wikipedia_title = wikipedia_title.strip()
+    uri = f'https://dbpedia.org/data/{wikipedia_title}.json'
+    final_coords = {}
+    if( wikipedia_title == '' ):
+        return final_coords
+
+    dbpedia_json = derefURI(uri, 0)
+
+    try:
+        dbpedia_json = json.loads(dbpedia_json)
+    except:
+        genericErrorInfo()
+        return final_coords
+    
+    resource = dbpedia_json.get(f'http://dbpedia.org/resource/{wikipedia_title}', {})
+    resource = dbpedia_json.get(f'https://dbpedia.org/resource/{wikipedia_title}', {}) if len(resource) == 0 else resource
+
+    if( len(resource) == 0 ):
+        return final_coords
+
+    geo_cord = get_val_for_key(resource, ['http://www.georss.org/georss/point', 'https://www.georss.org/georss/point'])
+    final_coords = fmt_geocord(geo_cord, link=uri, src='dbpedia', toponym=wikipedia_title, rank=1, src_attribute='http://www.georss.org/georss/point')
+    
+    if( len(final_coords) != 0 ):
+        return final_coords[0]
+
 
 def jaccard_sim(str0, str1):
 
@@ -105,33 +194,39 @@ def is_within_boundary(coords, geojson_boundary):
     polygon = shape(geojson_boundary['features'][0]['geometry'])
     return polygon.contains(point)
 
-def mordecai3_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_miles, is_state):
+def db_spotlight(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_miles, is_state):
     
-    geo = Geoparser()
     matched_ref = None
     topo = []
 
     try:
-        res = geo.geoparse_doc(doc)
+        res = annotate_text_with_dbpedia(doc)
 
         print('ambig_topo:', ambig_topo)
         print('sentence:')
         print(doc.strip())
         
-        for i in range(len(res['geolocated_ents'])):
-            g = res['geolocated_ents'][i]
+        for i in range(len(res["Resources"])):
+            g = res["Resources"][i]
+            # print(g)
+            result = get_dbpedia_coords(g)
+            # print(result)
+            if result != None:
+                g['lat'], g['lon'], g['name'] = result['latitude'], result['longitude'], result['toponym']
+    
+            else:
+                g['lat'], g['lon'], g['name'] = 0, 0, 'None'
             loc_coords = (g['lat'], g['lon'])
-
             dist_miles = great_circle(loc_coords, gold_ref_lat_long).miles
-            sim_name = jaccard_sim(ambig_topo,g['search_name'])
+            sim_name = jaccard_sim(ambig_topo,g['name'])
 
             g['sim_name'] = sim_name
-            print('\t', g['search_name'], sim_name, dist_miles)
+            print('\t', g['name'], sim_name, dist_miles)
             
-        res['geolocated_ents'] = sorted(res['geolocated_ents'], key=lambda x: x['sim_name'], reverse=True)
+        res["Resources"] = sorted(res["Resources"], key=lambda x: x['sim_name'], reverse=True)
         
-        if( len(res['geolocated_ents']) != 0 ):
-            topo = res['geolocated_ents'][0]
+        if( len(res["Resources"]) != 0 ):
+            topo = res["Resources"][0]
 
             loc_coords = (topo['lat'], topo['lon'])
             dist_miles = great_circle(loc_coords, gold_ref_lat_long).miles
@@ -140,7 +235,7 @@ def mordecai3_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radiu
                 matched_ref = is_within_boundary(loc_coords, bounds)
             else:
                 matched_ref = True if dist_miles <= match_proximity_radius_miles else False
-            out = '\t{}, dist. (miles) from ref: {:.2f}, matched ref: {}\n\t{}\n'.format(topo['search_name'], dist_miles, matched_ref, '{} vs. {}'.format(loc_coords, gold_ref_lat_long) )
+            out = '\t{}, dist. (miles) from ref: {:.2f}, matched ref: {}\n\t{}\n'.format(topo['name'], dist_miles, matched_ref, '{} vs. {}'.format(loc_coords, gold_ref_lat_long) )
             print(out)
             topo = [topo]
 
