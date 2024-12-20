@@ -1,29 +1,61 @@
 # Entity Disambiguation in News Texts using Dedicated Geoparsers and LLMs
 
-# Table of Contents
 
-- [Abstract](#abstract)
-- [Using Windows? Read this.](#using-windows-read-this)
-- [Datasets (Gold standards)](#datasets-gold-standards)
-- [State-of-the-Art Geoparsers](#State-of-the-Art-Geoparsers)
-  - [GATE YODIE](#1-gate-yodie)
-  - [Geoparsepy](#2-geoparsepy-using-windows-terminal-pipenv)
-  - [Cliff-Clavin](#3-cliff-clavin)
-  - [DBpedia Spotlight](#4-dbpedia-spotlight)
-  - [Edinburgh Geoparser](#5-edinburgh-geoparser)
-  - [Mordecai](#6-mordecai3)
-  - [Evaluation](#state-of-the-art-evaluation)
-- [Large Language Models](#large-language-models)
-  - [Non-Finetined Models](#non-finetined-models)
-    - [GPT4o-mini](#gpt-4o-mini)
-    - [Llama2-7B](#llama2-7b)
-    - [Phi3-mini-4k](#phi3-mini-4k)
-  - [Finetined Models](#finetuned-models)
-    - [Llama2-7B](#llama2-7b-lora-toponym-resolution)
-    - [Mistral-7B](#mistral-7b-lora-toponym-resolution)
-    - [Llama2-13B](#llama2-13b-lora-toponym-resolution)
-  - [LLMs Evaluation](#results)
-- [Acknowledgements](#acknowledgements)
+## Table of Contents
+
+<details>
+  <summary>Abstract</summary>
+  <!-- Add content or subheadings here if needed -->
+</details>
+
+<details>
+  <summary>Using Windows? Read this.</summary>
+  <!-- Add content or subheadings here if needed -->
+</details>
+
+<details>
+  <summary>Datasets (Gold standards)</summary>
+  <!-- Add content or subheadings here if needed -->
+</details>
+
+<details>
+  <summary>State-of-the-Art Geoparsers</summary>
+  <ul>
+    <li><a href="#gate-yodie">GATE YODIE</a></li>
+    <li><a href="#geoparsepy">Geoparsepy</a></li>
+    <li><a href="#cliff-clavin">Cliff-Clavin</a></li>
+    <li><a href="#dbpedia-spotlight">DBpedia Spotlight</a></li>
+    <li><a href="#edinburgh-geoparser">Edinburgh Geoparser</a></li>
+    <li><a href="#mordecai">Mordecai</a></li>
+    <li><a href="#evaluation">Evaluation</a></li>
+  </ul>
+</details>
+<details>
+  <summary>Large Language Models</summary>
+  <ul>
+    <li><a href="#regular-non-finetuned-models">Non-Finetuned Models</a>
+      <ul>
+        <li><a href="#gpt4o-mini">GPT4o-mini</a></li>
+        <li><a href="#llama2-7b">Llama2-7B</a></li>
+        <li><a href="#phi3-mini-4k">Phi3-mini-4k</a></li>
+      </ul>
+    </li>
+    <li>Finetuned Models
+      <ul>
+        <li><a href="#llama2-7b">Llama2-7B</a></li>
+        <li><a href="#mistral-7b">Mistral-7B</a></li>
+        <li><a href="#llama2-13b">Llama2-13B</a></li>
+      </ul>
+    </li>
+    <li><a href="#llms-evaluation">LLMs Evaluation</a></li>
+  </ul>
+</details>
+
+<details>
+  <summary>Acknowledgements</summary>
+  <!-- Add content or subheadings here if needed -->
+</details>
+
 
 # Abstract
 
