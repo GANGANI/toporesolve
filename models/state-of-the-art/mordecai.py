@@ -1,25 +1,32 @@
 import json
 import sys
 import time
-import os
 
+from geopy.distance import great_circle
 from mordecai3 import Geoparser
 
 from util import dumpJsonToFile
 from util import getDictFromJson
 from util import genericErrorInfo
+from util import get_eval_metric_frm_conf_mat
 from shapely.geometry import shape, Point
 
-def evaluate_place_resolver(gold_file_path):
+def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
 
     print('\nevaluate_place_resolver():')
-    trues = 0
-    falses = 0
-    nones = 0
-
+    gazetteer_aliases = {
+        'geonames': 'ge',
+        'openstreetmap': 'op', 
+        'google': 'gg',
+        'google_localized': 'gl'
+    }
+    TP = 0
+    FP = 0
+    FN = 0
     place_counter = 0
     eval_report = {'experiments': []}
     
+    start_time = time.time()
     with open(gold_file_path) as infile:
         for place in infile:
             
@@ -28,26 +35,38 @@ def evaluate_place_resolver(gold_file_path):
             if( len(place) == 0 ):
                 continue
 
-            state = place['media_dets']['state_abbrev']
+            
+            ref_coords = (place['lat_long'][0], place['lat_long'][1])
             sentences = '.'.join([s['sent'] for s in place['context']['sents']])
-            result = mordecai3_geoparse(place['entity'], sentences, state)
+            result = mordecai3_geoparse(place['entity'], sentences, ref_coords, match_proximity_radius_miles, place['is_state'])
             
             eval_report['experiments'].append({
                 'reference_place': place,
                 'resolved_places': result
             })
 
-            if( result['within_state'] is True ):
-                trues += 1
-            elif( result['within_state'] is False ):
-                falses += 1
+            if( result['matched_ref'] is True ):
+                TP += 1
+            elif( result['matched_ref'] is False ):
+                FP += 1
             else:
-                nones += 1
+                FN += 1
 
-    eval_report['conf_mat'] = {'true': trues, 'false': falses, 'none': nones}
+    params = {}
+    params['search_loc_city'] = 'multiple'
+    params['search_loc_state'] = 'multiple'
+    params['ref_coords'] = ()
 
-    eval_rep_file = '{}.eval.json'.format(gold_file_path.replace('.jsonl', ''))
-    eval_rep_file = eval_rep_file.replace('/{state}/', '/{state}/eval-results/')
+    eval_report['conf_mat'] = {'TP': TP, 'TN': None, 'FP': FP, 'FN': FN}
+    print('result:', 'TP:', TP, 'FP:', FP, 'FN:', FN)
+    
+    eval_report['params'] = params
+    eval_report['runtime_seconds'] = time.time() - start_time
+
+    expr_params = 'mo'
+
+    eval_rep_file = '{}.eval.{}.json'.format(gold_file_path.replace('.jsonl', ''), expr_params)
+    eval_rep_file = eval_rep_file.replace('/disambiguated/', '/disambiguated/eval-results/')
     
     dumpJsonToFile(eval_rep_file, eval_report)
 
@@ -74,25 +93,28 @@ def jaccard_sim(str0, str1):
 
     return jaccardFor2Sets(firstSet, secondSet)
 
-def load_geojson_boundary(state):
+def load_geojson_boundary(is_state):
     try:
-        with open(f'/mnt/c/Users/great/Desktop/news-deserts-nlp-greatness/mordecai3/boundaries/adm1/{state}.geojson') as f:
+        with open(f'/mnt/c/Users/great/Desktop/news-deserts-nlp-greatness/rule-based/boundaries/{is_state}') as f:
             return json.load(f)
     except FileNotFoundError:
-        print(f"No boundary file found for {state}.")
+        print(f"No boundary file found for {is_state}.")
         return None
     
 def is_within_boundary(coords, geojson_boundary):
     if geojson_boundary is None:
         return False
-    point = Point(coords[1], coords[0])  # Note: Point(longitude, latitude)
+    safe_loc_coords = (coords[0] if coords[0] is not None else 0,
+                   coords[1] if coords[1] is not None else 0)
+
+    point = Point(safe_loc_coords[1], safe_loc_coords[0])  # Note: Point(longitude, latitude)
     polygon = shape(geojson_boundary['features'][0]['geometry'])
     return polygon.contains(point)
 
-def mordecai3_geoparse(ambig_topo, doc, state):
+def mordecai3_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_miles, is_state):
     
     geo = Geoparser()
-    within_state = None
+    matched_ref = None
     topo = []
 
     try:
@@ -106,21 +128,26 @@ def mordecai3_geoparse(ambig_topo, doc, state):
             g = res['geolocated_ents'][i]
             loc_coords = (g['lat'], g['lon'])
 
-            
+            dist_miles = great_circle(loc_coords, gold_ref_lat_long).miles
             sim_name = jaccard_sim(ambig_topo,g['search_name'])
 
             g['sim_name'] = sim_name
+            print('\t', g['search_name'], sim_name, dist_miles)
             
         res['geolocated_ents'] = sorted(res['geolocated_ents'], key=lambda x: x['sim_name'], reverse=True)
         
         if( len(res['geolocated_ents']) != 0 ):
             topo = res['geolocated_ents'][0]
-            bounds = load_geojson_boundary(state)
+
             loc_coords = (topo['lat'], topo['lon'])
-            
-            within_state = is_within_boundary(loc_coords, bounds)
-            # out = '\t{}, dist. (miles) from ref: {:.2f}, matched ref: {}\n\t{}\n'.format(topo['search_name'], dist_miles, within_state, '{} vs. {}'.format(loc_coords, gold_ref_lat_long) )
-            # print(out)
+            dist_miles = great_circle(loc_coords, gold_ref_lat_long).miles
+            if is_state:
+                bounds = load_geojson_boundary(is_state)
+                matched_ref = is_within_boundary(loc_coords, bounds)
+            else:
+                matched_ref = True if dist_miles <= match_proximity_radius_miles else False
+            out = '\t{}, dist. (miles) from ref: {:.2f}, matched ref: {}\n\t{}\n'.format(topo['search_name'], dist_miles, matched_ref, '{} vs. {}'.format(loc_coords, gold_ref_lat_long) )
+            print(out)
             topo = [topo]
 
         print()
@@ -130,21 +157,11 @@ def mordecai3_geoparse(ambig_topo, doc, state):
 
     return {
         'toponym': topo,
-        'within_state': within_state
+        'matched_ref': matched_ref
     }
 
 
-base_path = 'evaluation/states'
-
-for state_folder in os.listdir(base_path):
-    state_folder_path = os.path.join(base_path, state_folder)
-    if os.path.isdir(state_folder_path):
-        gpe_file_path = os.path.join(state_folder_path, f"{state_folder}_GPE.jsonl")
-
-        if os.path.exists(gpe_file_path):
-            normalized_path = gpe_file_path.replace('\\', '/')
-            evaluate_place_resolver(normalized_path)
-        else:
-            print(f"No GPE file found for {state_folder}")
-    else:
-        print(f"{state_folder} is not a directory")
+gold_file_path = 'evaluation/merged/disambiguated/GPE_2024_05_21T134100Z.jsonl'
+# gold_file_path = 'evaluation/merged/disambiguated/LOC_2024_05_21T134100Z.jsonl'
+# gold_file_path = 'evaluation/merged/disambiguated/FAC_2024_05_21T134100Z.jsonl'
+evaluate_place_resolver(gold_file_path)

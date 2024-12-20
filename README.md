@@ -55,7 +55,7 @@ cd /mnt/c/Users/YourWindowsUsername/WindowsFolder/filename.txt
 All the tools and commands below were run using Ubuntu terminal via WSL, except when explicitly stated otherwise.
 
 # Datasets (Gold standards)
-[text](data/gold_standards)
+[data](data/gold_standards)
 
 There are 3 in total, one for GPE, LOC, and FAC entities. The ambiguous toponyms were manually geocoded using Google, Geonames, or OpenStreetMap. They were randomly scraped from local news sites in all 50 states. They are all made of 100 objects, 2 from each US state. 
 
@@ -147,9 +147,10 @@ https://github.com/stuartemiddleton/geoparsepy
 
 ### Installation:
 - Download Postgre: when you install, you will be asked to give a password, take note of this, also you will be asked to select a port: choose  5432 https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
-- Install the geoparsepy library
+- Install `requests` and the `geoparsepy` library
 
 ```bash
+pip install requests
 pip install geoparsepy
 ```
 
@@ -376,7 +377,7 @@ Complete code can be found [here](models/state-of-the-art/dpbedia.py)
 https://www.ltg.ed.ac.uk/software/geoparser/
 
 ### Installation
-- Download WSL and Ubuntu
+- Install networkx, xmltodict, bs4
 - Download geoparser-1.3.tar.gz from https://www.ltg.ed.ac.uk/software/geoparser/ and extract
 - Navigate to the Script Directory in terminal
 - Run an example text file
@@ -511,30 +512,30 @@ Complete code can be found [here](models/state-of-the-art/mordecai.py)
 
 ## State of the Art Evaluation
 
-### GPE (Gold standard: GPE_2023-06-07T160700Z.jsonl)
+### GPE (Gold standard: [GPE_2023-06-07T160700Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
-|**Precision**| 0.595 | 0.356 | 0.292 | 0.375 | 0.425 | 0.381 
-|**Recall**| 0.611 | 0.727 | 0.824 | 0.857 | 0.607 | 0.640 
-|**F1**| 0.603 | 0.478 | 0.431 | 0.522 | 0.500 | 0.478 
+|**Precision**| 0.8182 | 0.356 | 0.292 | 0.375 | 0.425 | 0.381 
+|**Recall**| 0.7159 | 0.727 | 0.824 | 0.857 | 0.607 | 0.640 
+|**F1-Score**| 0.7629 | 0.478 | 0.431 | 0.522 | 0.500 | 0.478 
 
 
-### LOC (Gold standard: LOC_2023-06-07T160700Z.jsonl)
+### LOC (Gold standard: [LOC_2023-06-07T160700Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
-|**Precision**| 0.321 | 0.282 | 0.316 | 0.475 | 0.308 | 0.409 
-|**Recall**| 0.281 | 0.478 | 0.480 | 0.633 | 0.500 | 0.720 
-|**F1**| 0.300 | 0.355 | 0.381 | 0.543 | 0.381 | 0.522 
+|**Precision**| 0.4839 | 0.282 | 0.253 | 0.5542 | 0.5098 | 0.4725
+|**Recall**| 0.4286 | 0.478 | 0.525| 0.7077 | 0.3377 | 0.7963
+|**F1-Score**| 0.4545 | 0.355 | 0.3414 | 0.6216 | 0.4064 | 0.5930
 
 
-### FAC (Gold standard: FAC_2023-06-07T160700Z.jsonl)
+### FAC (Gold standard: [FAC_2023-06-07T160700Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
-|**Precision**| 0.341 | 0.235 | 0.244 | 0.355 | 0.432 | 0.234 
-|**Recall**| 0.583 | 0.32 | 0.5 | 0.355 | 0.731 | 0.733 
-|**F1**| 0.431 | 0.271 | 0.328 | 0.355 | 0.543 | 0.355 
+|**Precision**| 0.3611 | 0.235 | 0.2262 | 0.4857 | 0.5818 | 0.4271
+|**Recall**| 0.4643 | 0.32 | 0.5135 | 0.5152 | 0.4051 | 0.8723
+|**F1-Score**| 0.4064 | 0.271 | 0.3140 | 0.5 | 0.4778 | 0.5734
 
-
+To run the evaluation code you would need the following additional modules: geopy, shapely, NwalaTextUtils
 
 # Large Language Models
 
@@ -725,26 +726,26 @@ Loading HuggingFace models take a good amount of time and requires substantial a
 
 ## Results
 
-### GPE
+### GPE (Gold standard: [GPE_2023-06-07T160700Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
-|**Precision**| 0.902|0.784|0.765|0.8586|0.85|0.8788
-|**Recall**| 1.0 |1.0|0.949|0.9659 |0.977|0.9667
-|**F1**| 0.948|0.879|0.847|0.9096|0.909|0.9188
+|**Precision**| **0.902**|0.784|0.765|0.8586|0.85|0.8788
+|**Recall**| **1.0** |**1.0**|0.949|0.9659 |0.977|0.9667
+|**F1-Score**| **0.948**|0.879|0.847|0.9096|0.909|0.9188
 
-### LOC
+### LOC (Gold standard: [LOC_2023-06-07T160700Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
-|**Precision**| 0.7|0.45|0.495| 0.5281|0.5778|0.5435
-|**Recall**| 0.972|0.957|0.870| 0.7833|0.8125|0.8333
-|**F1**| 0.813|0.613|0.632| 0.6297|0.6757|0.6577
+|**Precision**| **0.7**|0.45|0.495| 0.5281|0.5778|0.5435
+|**Recall**| **0.972**|0.957|0.870| 0.7833|0.8125|0.8333
+|**F1-Score**| **0.813**|0.613|0.632| 0.6297|0.6757|0.6577
 
-### FAC
+### FAC (Gold standard: [FAC_2023-06-07T160700Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
-|**Precision**| 0.931|0.667|0.693| 0.7561|0.8429|0.8
-|**Recall**| 1.0|0.957|0.813| 0.7561|0.6484|0.7442
-|**F1**| 0.964|0.785|0.748| 0.7561|0.7323|0.7707
+|**Precision**| **0.931**|0.667|0.693| 0.7561|0.8429|0.8
+|**Recall**| **1.0**|0.957|0.813| 0.7561|0.6484|0.7442
+|**F1-Score**| **0.964**|0.785|0.748| 0.7561|0.7323|0.7707
 
 
 ## Evaluation Process
