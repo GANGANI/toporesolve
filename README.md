@@ -4,18 +4,15 @@
 ## Table of Contents
 
 <details>
-  <summary>Abstract</summary>
-  <!-- Add content or subheadings here if needed -->
+  <summary><a href="#abstract">Abstract</a></summary>
 </details>
 
 <details>
-  <summary>Using Windows? Read this.</summary>
-  <!-- Add content or subheadings here if needed -->
+  <summary><a href="#using-windows-read-this">Using Windows? Read this.</a></summary>
 </details>
 
 <details>
-  <summary>Datasets (Gold standards)</summary>
-  <!-- Add content or subheadings here if needed -->
+  <summary><a href="#datasets-gold-standards">Datasets (Gold standards)</a></summary>
 </details>
 
 <details>
@@ -40,11 +37,11 @@
         <li><a href="#phi3-mini-4k">Phi3-mini-4k</a></li>
       </ul>
     </li>
-    <li>Finetuned Models
+    <li><a href="#finetuned-models">Finetuned Models</a>
       <ul>
-        <li><a href="#llama2-7b">Llama2-7B</a></li>
-        <li><a href="#mistral-7b">Mistral-7B</a></li>
-        <li><a href="#llama2-13b">Llama2-13B</a></li>
+        <li><a href="#llama2-7b-lora-toponym-resolution">Llama2-7B</a></li>
+        <li><a href="#mistral-7b-lora-toponym-resolution">Mistral-7B</a></li>
+        <li><a href="#llama2-13b-lora-toponym-resolution">Llama2-13B</a></li>
       </ul>
     </li>
     <li><a href="#llms-evaluation">LLMs Evaluation</a></li>
@@ -52,8 +49,7 @@
 </details>
 
 <details>
-  <summary>Acknowledgements</summary>
-  <!-- Add content or subheadings here if needed -->
+  <summary><a href="#acknowledgements">Acknowledgements</a></summary>
 </details>
 
 
