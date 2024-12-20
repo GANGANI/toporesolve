@@ -44,7 +44,7 @@
         <li><a href="#llama2-13b-lora-toponym-resolution">Llama2-13B</a></li>
       </ul>
     </li>
-    <li><a href="#llms-evaluation">LLMs Evaluation</a></li>
+    <li><a href="#results">LLMs Evaluation</a></li>
   </ul>
 </details>
 
@@ -757,23 +757,23 @@ Loading HuggingFace models take a good amount of time and requires substantial a
 ### GPE (Gold standard: [GPE_2023-06-07T160700Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
-|**Precision**| **0.902**|0.784|0.765|0.8586|0.85|0.8788
-|**Recall**| **1.0** |**1.0**|0.949|0.9659 |0.977|0.9667
-|**F1-Score**| **0.948**|0.879|0.847|0.9096|0.909|0.9188
+|**Precision**| ***0.902***|0.784|0.765|0.8586|0.85|0.8788
+|**Recall**| ***1.0*** |***1.0***|0.949|0.9659 |0.977|0.9667
+|**F1-Score**| ***0.948***|0.879|0.847|0.9096|0.909|0.9188
 
 ### LOC (Gold standard: [LOC_2023-06-07T160700Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
-|**Precision**| **0.7**|0.45|0.495| 0.5281|0.5778|0.5435
-|**Recall**| **0.972**|0.957|0.870| 0.7833|0.8125|0.8333
-|**F1-Score**| **0.813**|0.613|0.632| 0.6297|0.6757|0.6577
+|**Precision**| ***0.7***|0.45|0.495| 0.5281|0.5778|0.5435
+|**Recall**| ***0.972***|0.957|0.870| 0.7833|0.8125|0.8333
+|**F1-Score**| ***0.813***|0.613|0.632| 0.6297|0.6757|0.6577
 
 ### FAC (Gold standard: [FAC_2023-06-07T160700Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
-|**Precision**| **0.931**|0.667|0.693| 0.7561|0.8429|0.8
-|**Recall**| **1.0**|0.957|0.813| 0.7561|0.6484|0.7442
-|**F1-Score**| **0.964**|0.785|0.748| 0.7561|0.7323|0.7707
+|**Precision**| ***0.931***|0.667|0.693| 0.7561|0.8429|0.8
+|**Recall**| ***1.0***|0.957|0.813| 0.7561|0.6484|0.7442
+|**F1-Score**| ***0.964***|0.785|0.748| 0.7561|0.7323|0.7707
 
 
 ## Evaluation Process
