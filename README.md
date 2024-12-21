@@ -168,7 +168,7 @@ Dbpedia entities are returned so further parsing is required to get the coordina
 
 **Note:** You can make 800 free header requests a day.
 
-Complete code can be found [here](models/state-of-the-art/gate.py)
+Complete code using Gate Yodie on the datasets can be found [here](models/state-of-the-art/gate.py)
 
 ## 2. Geoparsepy (using windows terminal pipenv)
 https://github.com/stuartemiddleton/geoparsepy
@@ -245,7 +245,7 @@ overpass_query = f"""
 requests.get(overpass_url, params={'data': overpass_query})
 ```
 
-Complete code can be found [here](models/state-of-the-art/geopaserpy.py)
+Complete code using Geoparsepy on the datasets can be found [here](models/state-of-the-art/geopaserpy.py)
 
 ## 3. Cliff-Clavin
 https://github.com/mediacloud/cliff-annotator
@@ -344,7 +344,7 @@ Output:
   "version": "2.6.0"
 }
 ```
-Complete code can be found [here](models/state-of-the-art/cliff.py)
+Complete code using Cliff Clavin on the datasets can be found [here](models/state-of-the-art/cliff.py)
 
 ## 4. DBpedia Spotlight
 https://github.com/dbpedia-spotlight/dbpedia-spotlight-model
@@ -399,7 +399,7 @@ Output:
 ```
 The same outcome will be gotten by using the `requests` library to send a POST request.
 
-Complete code can be found [here](models/state-of-the-art/dpbedia.py)
+Complete code using Dbpedia Spotlight on the datasets can be found [here](models/state-of-the-art/dbpedia.py)
 
 ## 5. Edinburgh Geoparser
 https://www.ltg.ed.ac.uk/software/geoparser/
@@ -435,6 +435,7 @@ Gazetteer options
 -l lat long radius score (use this if you know what geographical area your ambiguous toponym is likely to be in)
 ```
 
+Complete code using Edinburgh Geoparser on the datasets can be found [here](models/state-of-the-art/edinburgh.py).
 
 ## 6. Mordecai3
 https://github.com/ahalterman/mordecai3
@@ -536,7 +537,7 @@ docker run -d -p 127.0.0.1:9200:9200 -e "discovery.type=single-node"
 -v $PWD/geonames_index/:/usr/share/elasticsearch/data elasticsearch:7.10.1
 ```
 
-Complete code can be found [here](models/state-of-the-art/mordecai.py)
+Complete code using Mordecai3 on the datasets can be found [here](models/state-of-the-art/mordecai.py)
 
 ## State of the Art Evaluation
 
