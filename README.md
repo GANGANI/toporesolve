@@ -63,43 +63,52 @@ This project evaluates LLMs for disambiguating toponyms in local news texts, com
 
 # Using Windows? Read this.
 
-I use a Windows 11 PC, however, throughout this project, I found the powershell extremely difficult to use for testing these tools, mostly because a lot of them were created with Linux or Mac users in mind. To make like easier for you as a Windows users, I recommend the following steps: 
+If you use a Windows 11 PC, you might find PowerShell challenging for testing tools, especially since many were developed with Linux or Mac users in mind. To make things easier, here’s what I recommend for Windows users:
 
-1. Install Windows Subsystem for Linux (WSL) via Powershell (ensure you open as Admin)
+1. Install Windows Subsystem for Linux (WSL). Open PowerShell as an Administrator and run the following command:
 ```powershell
 wsl --install
 ```
-2. Install a Linux distribution: installing WSL may also install Ubuntu but if not, you can open the Microsoft store app and search for WSL. You will find a bunch of linux distributions. I use Ubuntu. Debian is another option.
 
-3. Set up the linux distribution. You will need to create a username and password (make sure to save or memorize these).
+2. Install a Linux distribution: Installing WSL often comes with Ubuntu pre-installed. If it doesn’t, open the Microsoft Store app and search for "WSL." You’ll find several Linux distributions available. Recommend Ubuntu (widely used, great for beginners). Alternative: Debian or other distributions of your choice.
 
-4. Now you have an Ubuntu terminal that you can run linux commands in.
+3. Set up the Linux distribution: After installation, open the Linux distribution (e.g., Ubuntu) and set it up by creating a username and password. Make sure to save or memorize these credentials.
 
-5. To access Windows files from Ubuntu, do this via the **/mnt/c** directory like this:
+4. You now have access to a full Ubuntu terminal within Windows, where you can run Linux commands seamlessly.
+
+5. To work with files on your Windows filesystem via the Ubuntu terminal, navigate to the **/mnt/c** directory:
 ```bash
 cd /mnt/c/Users/YourWindowsUsername/WindowsFolder/filename.txt
 ```
+Replace `YourWindowsUsername` and `WindowsFolder` with your actual username and folder path.
 
 All the tools and commands below were run using Ubuntu terminal via WSL, except when explicitly stated otherwise.
 
 # Datasets (Gold standards)
 [data](data/gold_standards)
 
-There are 3 in total, one for GPE, LOC, and FAC entities. The ambiguous toponyms were manually geocoded using Google, Geonames, or OpenStreetMap. They were randomly scraped from local news sites in all 50 states. They are all made of 100 objects, 2 from each US state. 
+This directory contains three datasets, each focusing on a specific entity type: GPE (Geopolitical Entities), LOC (Locations), and FAC (Facilities). Ambiguous toponyms were manually geocoded using Google, GeoNames, or OpenStreetMap. These datasets aim to provide geolocation information and contextual usage of various entities.
 
-Each JSONL file is designed to provide both the geolocation information of various entities and the context in which these entities are mentioned. 
-- Gold standard files are in the format: `*.TOPO_2023-06-07T160700Z.jsonl` where TOPO = GPE or LOC or FAC
+## Overview of Files
 
-- Each line (i.e., each JSON object) represents a geographical entity and its context.
-- Each entry has `lat_long` field with latitude and longitude values, indicating the geographic location related to the entry.
+- Total Datasets: 3
+- File Naming Convention: *.TOPO_2024_05_21T134100Z.jsonl. TOPO Indicates the entity type (GPE, LOC, or FAC).
+- Structure: Each file contains 102 JSON objects, with 2 objects from each U.S. state, randomly scraped from local news websites.
 
-- The `entity` field represents a geographic entity (like "Newfane" or "Pennsylvania"), and the `entity_label` field contains a label for this entity, such as "GPE" (Geopolitical Entity).
+## Data Structure
+Each line (JSON object) contains the following fields:
+- `lat_long`: Latitude and longitude values of the geographic location.
+- `entity`: The name of the geographic entity (e.g., "Newfane" or "Pennsylvania").
+- `entity_label`: The entity type (e.g., "GPE" for Geopolitical Entity).
+- `context`:
+  - `sents`: Sentences containing mentions of the entity, providing context.
 
-- The `context` field contains contextual information where the entity is mentioned. This includes the sentences (`sents`) where the entity is mentioned.
-- Other Information:
-    - The `link` field provides a URL to the source of the information.
-    - The `title` field contains the title of the source material.
-    - Additional fields like published, `link_extracted_from`, and `media_dets` provide more context about the source, such as the publishing date, where the link was extracted from, and details about the media outlet.
+Additional metadata:
+- `link`: URL of the source material.
+- `title`: Title of the source document.
+- `published`: Publication date of the source material.
+- `link_extracted_from`: Where the link was sourced (e.g., a news website).
+- `media_dets`: Details about the media outlet (e.g., name, type).
 
 
 # State-of-the-Art Geoparsers
@@ -544,31 +553,31 @@ Complete code using Mordecai3 on the datasets can be found [here](models/state-o
 ### GPE (Gold standard: [GPE_2024_05_21T134100Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
-|Precision| **0.8182** | 0.356 | 0.5543 | 0.7526 | 0.7544 | 0.6867
-|Recall| 0.7159 | 0.727 | 0.8361| **0.9359** | 0.4886 | 0.7500
-|F1-Score| 0.7629 | 0.478 | 0.6668 | **0.834**| 0.5928 | 0.7170
+|Precision| **0.8182** | 0.7011 | 0.5543 | 0.7526 | 0.7544 | 0.6867
+|Recall| 0.7159 | 0.8026 | 0.8361| **0.9359** | 0.4886 | 0.7500
+|F1-Score| 0.7629 | 0.7484 | 0.6668 | **0.834**| 0.5928 | 0.7170
 
 
 ### LOC (Gold standard: [LOC_2024_05_21T134100Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
-|Precision| 0.4839 | 0.282 | 0.253 | **0.5542** | 0.5098 | 0.4725
-|Recall| 0.4286 | 0.478 | 0.525| 0.7077 | 0.3377 | **0.7963**|
-|F1-Score| 0.4545 | 0.355 | 0.3414 | **0.6216** | 0.4064 | 0.5930
+|Precision| 0.4839 | 0.4286 | 0.253 | **0.5542** | 0.5098 | 0.4725
+|Recall| 0.4286 | 0.4839 | 0.525| 0.7077 | 0.3377 | **0.7963**|
+|F1-Score| 0.4545 | 0.4544 | 0.3414 | **0.6216** | 0.4064 | 0.5930
 
 
 ### FAC (Gold standard: [FAC_2024_05_21T134100Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
-|**Precision**| 0.3611 | 0.235 | 0.2262 | 0.4857 | **0.5818** | 0.4271
-|**Recall**| 0.4643 | 0.32 | 0.5135 | 0.5152 | 0.4051 | **0.8723**|
-|**F1-Score**| 0.4064 | 0.271 | 0.3140 | 0.5 | 0.4778 | **0.5734**|
+|Precision| 0.3611 | 0.3750 | 0.2262 | 0.4857 | **0.5818** | 0.4271
+|Recall| 0.4643 | 0.4737 | 0.5135 | 0.5152 | 0.4051 | **0.8723**|
+|F1-Score| 0.4064 | 0.4184 | 0.3140 | 0.5 | 0.4778 | **0.5734**|
 
 To run the evaluation code you would need the following additional modules: geopy, shapely, NwalaTextUtils
 
 # Large Language Models
 
-A total of 5 LLMs were tested in various ways. GPT-4o-mini was tested using the API for a fee. Others were tested via HuggingFace, some of which were fine-tuned prior to testing. 
+A total of 5 LLMs were tested in various ways. GPT-4o-mini was tested using the API for a fee. Others such as Llama2, Mistral, etc are opensource and were tested via HuggingFace, some of which were fine-tuned prior to testing. 
 
 ## Regular (Non-Finetuned) Models
 
@@ -748,7 +757,7 @@ python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights
 
 ### Important Note
 
-Loading HuggingFace models take a good amount of time and requires substantial available memory. It is advisable to use GPUs when running the models. For running and testing all the models (with the exception of gpt-4o-mini), High Performance Computing (HPC) systems provided by William and Mary were utilized. These systems are accessible to W&M students and faculty and provide access to GPUs for data intense projects. See https://www.wm.edu/offices/it/services/researchcomputing/atwm/
+Though free to use, loading HuggingFace models take a good amount of time and requires substantial available memory. It is advisable to use GPUs when running the models. For running and testing all the models (with the exception of gpt-4o-mini), High Performance Computing (HPC) systems provided by William and Mary were utilized. These systems are accessible to W&M students and faculty and provide access to GPUs for data intense projects. See https://www.wm.edu/offices/it/services/researchcomputing/atwm/.
 
 ## Results
 

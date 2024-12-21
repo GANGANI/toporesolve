@@ -1,14 +1,11 @@
-import json
-import sys
-import time
+import json, time
+
+from cliff.api import Cliff
 
 from geopy.distance import great_circle
-from cliff.api import Cliff
-from util import dumpJsonToFile
-from util import getDictFromJson
-from util import genericErrorInfo
 from shapely.geometry import shape, Point
 
+from util import dumpJsonToFile, getDictFromJson, genericErrorInfo
 
 def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
 

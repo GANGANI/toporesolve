@@ -6,21 +6,17 @@ import xmltodict
 from random import randint
 
 from geopy.distance import great_circle
-from genericCommon import dumpJsonToFile
-from genericCommon import getDictFromJson
-from genericCommon import search_geonames
-from genericCommon import writeTextToFile
-from genericCommon import genericErrorInfo
+from util import dumpJsonToFile
+from util import getDictFromJson
+from util import search_geonames
+from util import writeTextToFile
+from util import genericErrorInfo
+from shapely.geometry import shape, Point
 
 def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
 
     print('\nevaluate_place_resolver():')
-    gazetteer_aliases = {
-        'geonames': 'ge',
-        'openstreetmap': 'op', 
-        'google': 'gg',
-        'google_localized': 'gl'
-    }
+    
     TP = 0
     FP = 0
     FN = 0
@@ -38,7 +34,7 @@ def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
             
             ref_coords = (place['lat_long'][0], place['lat_long'][1])
             sentences = '.'.join([s['sent'] for s in place['context']['sents']])
-            result = edin_geoparse(place['entity'], sentences, ref_coords, match_proximity_radius_miles, search_loc_city=place['media_dets']['location_name'], search_loc_state=place['media_dets']['state'])
+            result = edin_geoparse(place['entity'], sentences, ref_coords, match_proximity_radius_miles, place['is_state'], search_loc_city=place['media_dets']['location_name'], search_loc_state=place['media_dets']['state'])
             
             eval_report['experiments'].append({
                 'reference_place': place,
@@ -52,8 +48,6 @@ def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
             else:
                 FN += 1
 
-            #if( place_counter == 1000 ):
-            #    break
 
     params = {}
     params['search_loc_city'] = 'multiple'
@@ -96,18 +90,36 @@ def jaccard_sim(str0, str1):
 
     return jaccardFor2Sets(firstSet, secondSet)
 
-def edin_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_miles, search_loc_city='', search_loc_state=''):
+def load_geojson_boundary(is_state):
+    try:
+        with open(f'/mnt/c/Users/great/Desktop/news-deserts-nlp-greatness/rule-based/boundaries/{is_state}') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"No boundary file found for {is_state}.")
+        return None
+    
+def is_within_boundary(coords, geojson_boundary):
+    if geojson_boundary is None:
+        return False
+    safe_loc_coords = (coords[0] if coords[0] is not None else 0,
+                   coords[1] if coords[1] is not None else 0)
+
+    point = Point(safe_loc_coords[1], safe_loc_coords[0])  # Note: Point(longitude, latitude)
+    polygon = shape(geojson_boundary['features'][0]['geometry'])
+    return polygon.contains(point)
+
+def edin_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_miles, is_state, search_loc_city='', search_loc_state=''):
 
     def merge_family_locations(placenames):
 
         G = nx.DiGraph()
         new_placenames = []
         placenames_dict = {}
-
+        if placenames is None or placenames == {'placenames': None}:
+            return []
         for place in placenames:
-
             if( 'place' not in place ):
-                continue
+                return []
 
             if(isinstance(place['place'], dict)):
                 place['place'] = [place['place']]
@@ -152,7 +164,7 @@ def edin_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_mil
     doc_out_filename = f'out-edin-parse-doc-{rand_slug}.txt'
     res_in_filename = f'/tmp/out-edin-parse-doc-{rand_slug}.txt.gaz.xml'
 
-    parser_path = '/mnt/c/Users/great/Desktop/news-deserts-nlp-greatness/geoparser-1.3/geoparser-1.3/scripts/run'
+    parser_path = '/mnt/c/Users/great/Desktop/news-deserts-nlp-greatness/edinburgh-parser/geoparser-1.3/scripts/run'
 
     xmlstr = ''
     try:
@@ -182,7 +194,6 @@ def edin_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_mil
         print('xmlstr:')
         print(xmlstr)
         print()
-
     
     placenames = merge_family_locations(placenames)
     for i in range(len(placenames)):
@@ -201,7 +212,11 @@ def edin_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_mil
         topo = placenames[0]
         loc_coords = (topo['geo']['@lat'], topo['geo']['@long'])
         dist_miles = great_circle(loc_coords, gold_ref_lat_long).miles
-        matched_ref = True if dist_miles <= match_proximity_radius_miles else False
+        if is_state:
+            bounds = load_geojson_boundary(is_state)
+            matched_ref = is_within_boundary(loc_coords, bounds)
+        else:
+            matched_ref = True if dist_miles <= match_proximity_radius_miles else False
         out = '\t{}, dist. (miles) from ref: {:.2f}, matched ref: {}\n\t{}\n'.format(topo['@name'], dist_miles, matched_ref, '{} vs. {}'.format(loc_coords, gold_ref_lat_long) )
         print(out)
         topo = [topo]
@@ -214,9 +229,8 @@ def edin_geoparse(ambig_topo, doc, gold_ref_lat_long, match_proximity_radius_mil
         'matched_ref': matched_ref
     }
 
-    
 
-gold_file_path = 'evaluation/merged/disambiguated/FAC_2023-06-07T160700Z.jsonl'
-# gold_file_path = 'evaluation/merged/disambiguated/LOC_2023-06-07T160700Z.jsonl'
-# gold_file_path = 'evaluation/merged/disambiguated/GPE_2023-06-07T160700Z.jsonl'
+gold_file_path = 'evaluation/merged/disambiguated/GPE_2024_05_21T134100Z.jsonl'
+# gold_file_path = 'evaluation/merged/disambiguated/LOC_2024_05_21T134100Z.jsonl'
+# gold_file_path = 'evaluation/merged/disambiguated/FAC_2024_05_21T134100Z.jsonl'
 evaluate_place_resolver(gold_file_path)

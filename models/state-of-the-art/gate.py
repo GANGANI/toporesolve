@@ -3,13 +3,10 @@ import time
 import requests
 
 from geopy.distance import great_circle
-
-from NwalaTextUtils.textutils import derefURI
-from NwalaTextUtils.textutils import genericErrorInfo
-
-from util import dumpJsonToFile
-from util import getDictFromJson
 from shapely.geometry import shape, Point
+
+from util import dumpJsonToFile, getDictFromJson
+from NwalaTextUtils.textutils import derefURI, genericErrorInfo
 
 def evaluate_place_resolver(gold_file_path, match_proximity_radius_miles=25):
 

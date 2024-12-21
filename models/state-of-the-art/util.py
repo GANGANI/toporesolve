@@ -1,4 +1,3 @@
-#Python3
 import json
 import os, sys
 import itertools
@@ -73,10 +72,6 @@ def writeTextToFile(outfilename, text, extraParams=None):
 
 def search_geonames(location, src_prefix='', merging_proximity_radius_miles=None, **kwargs):
 
-    '''
-        Scrapes searches geonames for location and scrapes SERP latitude/longitude information.
-        Merges locations within merging_proximity_radius_miles (e.g., 15 miles) radius
-    '''
     def get_table_header(rows):
     
         for i in range(len(rows)):
@@ -85,7 +80,6 @@ def search_geonames(location, src_prefix='', merging_proximity_radius_miles=None
             if( len(header) == 0 ):
                 continue
 
-            #expected header when location found: [<th></th>, <th>Name</th>, <th>Country</th>, <th>Feature class</th>, <th>Latitude</th>, <th>Longitude</th>]
             header = [h.text.strip() for h in header]
             header = [h.lower().replace(' ', '_') for h in header if h != '']
             return header
@@ -94,7 +88,6 @@ def search_geonames(location, src_prefix='', merging_proximity_radius_miles=None
 
     def get_col_details(cols, src_prefix):
     
-        #SITE A
         adm_levels = ''
         location_dets = {'toponym': '', 'link': '', 'src': '', 'latitude': None, 'longitude': None, 'country': '', 'adm_levels': ''}
         for i in range(len(cols)):
@@ -128,8 +121,6 @@ def search_geonames(location, src_prefix='', merging_proximity_radius_miles=None
                     continue
                     
                 try:
-                    #SITE B
-                    #CAUTION: TIGHT-COUPLING (SITES: A, B, C)
                     location_dets[geo] = float(latlong.text.strip())
                     location_dets['src'] = f'{src_prefix}geonames'
                 except:
@@ -137,14 +128,11 @@ def search_geonames(location, src_prefix='', merging_proximity_radius_miles=None
 
 
         lat_long_ky = 'https://www.geonames.org/maps/wikipedia_'
-        #https://www.geonames.org/maps/wikipedia_56.1231_-3.9467.html         
         if( location_dets['link'].startswith(lat_long_ky) and location_dets['latitude'] is None and location_dets['longitude'] is None ):
             
             latlong = location_dets['link'].replace(lat_long_ky, '').replace('.html', '').split('_')
             if( len(latlong) == 2 ):
                 try:
-                    #SITE C
-                    #CAUTION: TIGHT-COUPLING (SITES: A, B, C)
                     location_dets['latitude'] = float(latlong[0])
                     location_dets['longitude'] = float(latlong[1])
                     location_dets['src'] = f'{src_prefix}wikipedia'
@@ -171,7 +159,6 @@ def search_geonames(location, src_prefix='', merging_proximity_radius_miles=None
         report = kwargs.get('report', {'toponyms': [], 'self': []})
     else:
         uri = f'https://www.geonames.org/search.html?q={quote_plus(location)}{query_params}'
-        #&featureClass=A: country, state, region,
         report = {'toponyms': [], 'self': []}
 
     report['self'].append(uri)
@@ -208,19 +195,8 @@ def search_geonames(location, src_prefix='', merging_proximity_radius_miles=None
 
     
     if( merging_proximity_radius_miles is not None ):
-        '''
-        print('Before merge:', len(report['toponyms']))
-        for t in report['toponyms']:
-            print('\t', t)
-        print()
-        '''
-        report['toponyms'] = merge_nearby_locations(report['toponyms'], proximity_radius_miles=merging_proximity_radius_miles)
 
-        '''
-        print('After merge:', len(report['toponyms']))
-        for t in report['toponyms']:
-            print('\t', t)
-        '''
+        report['toponyms'] = merge_nearby_locations(report['toponyms'], proximity_radius_miles=merging_proximity_radius_miles)
 
     if( next_pg_link != '' and cur_page < max_pages ):
         kwargs['cur_page'] = cur_page + 1
@@ -257,25 +233,16 @@ def merge_nearby_locations(geo_locs, proximity_radius_miles=5):
         all_gazetteer_srcs.add(geo_locs[fst_indx]['src'])
         all_gazetteer_srcs.add(geo_locs[sec_indx]['src'])
 
-    '''
-    print('proximity_radius_miles:', proximity_radius_miles)
-    print('all_gazetteer_srcs:')
-    print(all_gazetteer_srcs)
-    print()
-    '''
     for cc in nx.connected_components(G):
         
         gazetteer_df_score = set()
         for indx in cc:
             geo_locs[indx]['skip'] = True
             gazetteer_df_score.add(geo_locs[indx]['src'])
-            #print(geo_locs[indx]['toponym'], gazetteer_df_score, geo_locs[indx]['latitude'], geo_locs[indx]['longitude'])
         
         fst_memb_indx = min(cc)
         new_geo_locs.append(geo_locs[fst_memb_indx])
         new_geo_locs[-1]['gazetteer_df_score'] = len(gazetteer_df_score)/len(all_gazetteer_srcs)
-        #print(geo_locs[fst_memb_indx]['toponym'], new_geo_locs[-1]['gazetteer_df_score'])
-        #print()
     
     for l in geo_locs:
         l.setdefault('gazetteer_df_score', 0)
