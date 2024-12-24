@@ -18,7 +18,7 @@ LLMs out-perform dedicated geoparsers, with ChatGPT-4o-mini outperfoming
 
 * [Datasets (Gold standards)](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#datasets-gold-standards)
 
-<details>
+* <details>
   <summary>State-of-the-Art Geoparsers</summary>
   <ul>
     <li><a href="#gate-yodie">GATE YODIE</a></li>
@@ -31,7 +31,7 @@ LLMs out-perform dedicated geoparsers, with ChatGPT-4o-mini outperfoming
   </ul>
 </details>
 
-<details>
+* <details>
   <summary>Large Language Models</summary>
   <ul>
     <li><a href="#regular-non-finetuned-models">Non-Finetuned Models</a>
