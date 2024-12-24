@@ -1,19 +1,22 @@
-# Entity Disambiguation in News Texts using Dedicated Geoparsers and LLMs
+# Toponym disambiguation in news text using dedicated geoparsers and LLMs
 
+[Location matters, and not just for real estate](https://doi.org/10.1080/13658816.2017.1368523). Identifying the names of places (*toponyms*) is essential to processing news text, but place names in news text are notoriously ambiguous. For example, the toponym *Paris* could refer to Paris, France or Paris, Texas, or Paris, Virginia, [etc](https://en.wikipedia.org/wiki/Paris_(disambiguation)). Toponym disambiguation or toponym resolution is defined as resolving toponyms to their precise locations (geo-coordinates).
+
+What follows is an exploration of various toponym disambiguation tools. Specifically, we explore how to install and use them, and in some cases evaluate their performance.
+
+TL;DR
+
+For [dedicated geoparsers](https://arxiv.org/pdf/2207.01683), Geopolitical (`GPE`) entities (e.g., countries, states, counties, cities) are the easiest to disambiguate, next are Location (`LOC`) entities (e.g., Non-GPE locations, mountain ranges, bodies of water), and then Facility (`FAC`) entities (e.g., Buildings, airports, highways, bridges, etc.). Cliff Clavin out-performed other geoparsers for both disambiguating GPEs and LOCs. DBPedia spotlight was the best-perfomingn geoparser for FACs
+
+LLMs out-perform dedicated geoparsers, with ChatGPT-4o-mini outperfoming
 
 ## Table of Contents
 
-<details>
-  <summary><a href="#abstract">Abstract</a></summary>
-</details>
+* [Abstract](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#abstract)
 
-<details>
-  <summary><a href="#using-windows-read-this">Using Windows? Read this.</a></summary>
-</details>
+* [Using Windows? Read this.](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#using-windows-read-this)
 
-<details>
-  <summary><a href="#datasets-gold-standards">Datasets (Gold standards)</a></summary>
-</details>
+* [Datasets (Gold standards)](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#datasets-gold-standards)
 
 <details>
   <summary>State-of-the-Art Geoparsers</summary>
@@ -27,6 +30,7 @@
     <li><a href="#evaluation">Evaluation</a></li>
   </ul>
 </details>
+
 <details>
   <summary>Large Language Models</summary>
   <ul>
@@ -48,10 +52,7 @@
   </ul>
 </details>
 
-<details>
-  <summary><a href="#acknowledgements">Acknowledgements</a></summary>
-</details>
-
+* [Acknowledgements](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#acknowledgements)
 
 # Abstract
 
