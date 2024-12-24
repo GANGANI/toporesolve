@@ -79,23 +79,17 @@ All the tools and commands below were run using Ubuntu terminal via WSL, except 
 
 # [Datasets (Gold standards)](data/gold_standards)
 
-This directory contains three datasets, each focusing on a specific entity type: GPE (Geopolitical Entities), LOC (Locations), and FAC (Facilities). Ambiguous toponyms were manually geocoded using Google, GeoNames, or OpenStreetMap. These datasets aim to provide geolocation information and contextual usage of various entities.
+We created three [gold-standard datasets](data/gold_standards) files for three classes of ambiguous toponyms --- `GPE`s, `LOC`s, and `FAC`s --- to evaluate the toponym disambiguation tools. Each file contains 102 randomly selected JSON objects of ambiguous toponyms and their corresponding disambiguated forms - geo-coordinates. To maximize diversity, we randomly extracted two toponyms from local news articles from the state.
 
-## Overview of Files
-
-- Total Datasets: 3
-- File Naming Convention: *.TOPO_2024_05_21T134100Z.jsonl. TOPO Indicates the entity type (GPE, LOC, or FAC).
-- Structure: Each file contains 102 JSON objects, with 2 objects from each U.S. state, randomly scraped from local news websites.
+Specifically, the `GPE` gold-standard file, [GPE_2024_05_21T134100Z.jsonl](https://github.com/wm-newslab/toponym-disambiguation/blob/nwala_edits/data/gold_standards/GPE_2024_05_21T134100Z.jsonl), consists of the geo-coordinates of ambiguous `GPE`s. Similarly, the `LOC` gold-standard file, [LOC_2024_05_21T134100Z.jsonl](https://github.com/wm-newslab/toponym-disambiguation/blob/nwala_edits/data/gold_standards/LOC_2024_05_21T134100Z.jsonl), contains the geo-coordinates of ambiguous `LOC`s, and [FAC_2024_05_21T134100Z.jsonl](https://github.com/wm-newslab/toponym-disambiguation/blob/nwala_edits/data/gold_standards/FAC_2024_05_21T134100Z.jsonl) - geo-coordinates of ambiguous `FAC`s. The ambiguous toponyms were manually disambiguated using Google search, GeoNames, or OpenStreetMap.
 
 ## Data Structure
-Each line (JSON object) contains the following fields:
-- `lat_long`: Latitude and longitude values of the geographic location.
-- `entity`: The name of the geographic entity (e.g., "Newfane" or "Pennsylvania").
-- `entity_label`: The entity type (e.g., "GPE" for Geopolitical Entity).
+Each line of a gold-standard file contains a JSON object with the following fields:
+- `lat_long`: Latitude and longitude values of the ambiguous toponym (`entity`).
+- `entity`: Ambiguous toponym (e.g., "Newfane" or "Pennsylvania").
+- `entity_label`: The toponym class (e.g., `GPE`, `LOC`, `FAC`).
 - `context`:
-  - `sents`: Sentences containing mentions of the entity, providing context.
-
-Additional metadata:
+  - `sents`: Sentences containing mentions of the toponym, providing context.
 - `link`: URL of the source material.
 - `title`: Title of the source document.
 - `published`: Publication date of the source material.
