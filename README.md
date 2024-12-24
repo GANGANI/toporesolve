@@ -97,14 +97,14 @@ Each line of a gold-standard file contains a JSON object with the following fiel
 - `media_dets`: Details about the media outlet (e.g., name, type).
 
 
-# State-of-the-Art Geoparsers
+# Traditional Geoparsers
 
-## 1. GATE YODIE
-https://cloud.gate.ac.uk/info/help/online-api.html
+## 1. [GATE YODIE](https://cloud.gate.ac.uk/info/help/online-api.html)
 
-- Create an account at https://cloud.gate.ac.uk/login/full
+**Installation
+- Create an account at [https://cloud.gate.ac.uk/login/full](https://cloud.gate.ac.uk/login/full)
 - Request an API key
-- Once you have the API key ID and password, make a HTTPS Header request to the API endpoint: https://cloud-api.gate.ac.uk/process/yodie-en
+- Once you have the API key ID and password, make an HTTP POST request to the API endpoint: [https://cloud-api.gate.ac.uk/process/yodie-en](https://cloud-api.gate.ac.uk/process/yodie-en)
 
 First convert your API ID and password to base64:
 
@@ -112,11 +112,12 @@ First convert your API ID and password to base64:
 $ echo -n "api-id" | base64
 ```
 
-Example header request:
+Example POST request, with content of `example.txt` set to `"The University of Oklahoma has received a  million gift from Delta Dental of Oklahoma and Delta Dental of Oklahoma Foundation to the OU College of Dentistry to fund a dental clinic on the OU-Tulsa campus."`:
 ```bash
 curl -X POST -H "Authorization: Basic base64-api-id" -H "Content-Type: text/plain" -H "Accept: application/json" -m 60 --data-binary @example.txt https://cloud-api.gate.ac.uk/process/yodie-en -o output.json
 ```
-Programmatically, you can use the python `requests` library to do this:
+
+Programmatically, you can use python's [requests](https://pypi.org/project/requests/) library:
 ```py
 import requests
 
@@ -126,10 +127,11 @@ headers = {
     "Content-Type": "text/plain",
     "Accept": "application/json"
 }
-
 requests.post(url, headers=headers, data={text}, timeout=60)
 ```
-Output:
+
+<details>
+<summary>Output:</summary>
 ```json
 {
     "text": "The University of Oklahoma has received a  million gift from Delta Dental of Oklahoma and Delta Dental of Oklahoma Foundation to the OU College of Dentistry to fund a dental clinic on the OU-Tulsa campus.",
@@ -159,6 +161,8 @@ Output:
     }
 }
 ```
+</details>
+
 Dbpedia entities are returned so further parsing is required to get the coordinates.
 
 **Note:** You can make 800 free header requests a day.
