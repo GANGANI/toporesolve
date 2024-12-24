@@ -101,10 +101,11 @@ Each line of a gold-standard file contains a JSON object with the following fiel
 
 ## 1. [GATE YODIE](https://cloud.gate.ac.uk/info/help/online-api.html)
 
-**Installation
+**Installation**
 - Create an account at [https://cloud.gate.ac.uk/login/full](https://cloud.gate.ac.uk/login/full)
 - Request an API key
 - Once you have the API key ID and password, make an HTTP POST request to the API endpoint: [https://cloud-api.gate.ac.uk/process/yodie-en](https://cloud-api.gate.ac.uk/process/yodie-en)
+- **Note:** You can make 800 free header requests a day.
 
 First convert your API ID and password to base64:
 
@@ -167,11 +168,8 @@ requests.post(url, headers=headers, data={text}, timeout=60)
 ```
 </details>
 
-Dbpedia entities are returned so further parsing is required to get the coordinates.
-
-**Note:** You can make 800 free header requests a day.
-
-Complete code using Gate Yodie on the datasets can be found [here](models/state-of-the-art/gate.py)
+Dbpedia entities are returned so further parsing is required to get the coordinates:
+`result = get_dbpedia_coords( dbpedia["entities"]["Mention"][0] )`. See [gate.py](models/state-of-the-art/gate.py) for complete code using Gate Yodie on the datasets.
 
 ## 2. Geoparsepy (using windows terminal pipenv)
 https://github.com/stuartemiddleton/geoparsepy
