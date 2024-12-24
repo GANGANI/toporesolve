@@ -1,24 +1,24 @@
-# Toponym disambiguation in news text using dedicated geoparsers and LLMs
+# Toponym disambiguation in news text using traditional geoparsers and LLMs
 
 [Location matters, and not just for real estate](https://doi.org/10.1080/13658816.2017.1368523). Identifying the names of places (*toponyms*) is essential to processing news text, but place names in news text are notoriously ambiguous. For example, the toponym *Paris* could refer to Paris, France or Paris, Texas, or Paris, Virginia, [etc](https://en.wikipedia.org/wiki/Paris_(disambiguation)). Toponym disambiguation or toponym resolution is defined as resolving toponyms to their precise locations (geo-coordinates).
 
-What follows is an exploration of various toponym disambiguation tools. Specifically, we explore how to install and use them, and in some cases evaluate their performance.
+Traditional geoparsers like [Mordecai3](https://github.com/ahalterman/mordecai3), [Cliff Clavin](https://github.com/mediacloud/cliff-annotator), [the Edinburgh Parser](https://www.ltg.ed.ac.uk/software/geoparser/), and [DBpedia Spotlight](https://github.com/dbpedia-spotlight/dbpedia-spotlight-model) use rule-based methods, knowledge bases, and statistical models for toponym disambiguation. While effective with domain-specific datasets, these tools often struggle with understanding complex contexts. Large Language Models (LLMs) like GPT and Llama excel at contextual reasoning, and often outperform traditional geoparsers in accuracy and flexibility. However, their high computational demands (powerful GPUs and optimized setups) limit their practicality.
 
-TL;DR
+What follows is an exploration of various toponym disambiguation tools (traditional geoparsers and general-purpose/fine-tuned LLMs). Specifically, we explore how to install and use them, and in some cases evaluate their performance.
 
-For [dedicated geoparsers](https://arxiv.org/pdf/2207.01683), our results show that geopolitical (`GPE`) entities (e.g., countries, states, counties, cities) are the easiest to disambiguate, next are location (`LOC`) entities (e.g., Non-GPE locations, mountain ranges, bodies of water), and then facility (`FAC`) entities (e.g., Buildings, airports, highways, bridges, etc.). [Cliff Clavin](https://github.com/mediacloud/cliff-annotator) out-performed other geoparsers for both disambiguating GPEs and LOCs. [DBPedia spotlight](https://github.com/dbpedia-spotlight/dbpedia-spotlight-model) was the best-performing geoparser for FACs.
+**TL;DR**
 
-LLMs out-performed dedicated geoparsers, with ChatGPT-4o-mini outperforming other general-purpose and fine-tuned Large Language Models (LLMs).
+For [traditional geoparsers](https://arxiv.org/pdf/2207.01683), our results show that geopolitical (`GPE`) entities (e.g., countries, states, counties, cities) are the easiest to disambiguate, next are location (`LOC`) entities (e.g., Non-GPE locations, mountain ranges, bodies of water), and then facility (`FAC`) entities (e.g., Buildings, airports, highways, bridges, etc.). Cliff Clavin out-performed other geoparsers for both disambiguating GPEs and LOCs. DBPedia spotlight was the best-performing geoparser for FACs.
+
+LLMs out-performed traditional geoparsers, with ChatGPT-4o-mini outperforming other general-purpose and fine-tuned LLMs.
 
 ## Table of Contents
-
-* [Abstract](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#abstract)
 
 * [Using Windows? Read this.](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#using-windows-read-this)
 
 * [Datasets (Gold standards)](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#datasets-gold-standards)
 
-&nbsp; <details>
+* <details>
   <summary>State-of-the-Art Geoparsers</summary>
   <ul>
     <li><a href="#gate-yodie">GATE YODIE</a></li>
@@ -54,24 +54,16 @@ LLMs out-performed dedicated geoparsers, with ChatGPT-4o-mini outperforming othe
 
 * [Acknowledgements](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#acknowledgements)
 
-# Abstract
-
-Entity disambiguation, the process of resolving ambiguities in text to link entities to unique identifiers (e.g., geocoordinates for place names), is a key challenge in natural language processing (NLP). Tools like Mordecai3, Cliff Clavin, the Edinburgh Parser, and DBpedia Spotlight use rule-based methods, knowledge bases, and statistical models. While effective with domain-specific datasets, these tools often struggle with understanding complex contexts.
-
-Advances in AI, particularly Large Language Models (LLMs) like GPT and Llama, are transforming this field. LLMs excel at contextual reasoning, often outperforming traditional tools in accuracy and flexibility. However, their high computational demands, requiring powerful GPUs and optimized setups, limit their practicality for real-time applications.
-
-This project evaluates LLMs for disambiguating toponyms in local news texts, comparing their performance with established tools. It highlights the potential of LLMs to set new benchmarks in entity disambiguation and provides practical insights for researchers and practitioners.
-
 # Using Windows? Read this.
 
-If you use a Windows 11 PC, you might find PowerShell challenging for testing tools, especially since many were developed with Linux or Mac users in mind. To make things easier, here’s what I recommend for Windows users:
+Most of the tools were developed with Unix (i.e., Linux, Mac) users in mind. We recommend the following to simplify usage for Windows (Windows 11 PC with PowerShell) users:
 
 1. Install Windows Subsystem for Linux (WSL). Open PowerShell as an Administrator and run the following command:
 ```powershell
 wsl --install
 ```
 
-2. Install a Linux distribution: Installing WSL often comes with Ubuntu pre-installed. If it doesn’t, open the Microsoft Store app and search for "WSL." You’ll find several Linux distributions available. Recommend Ubuntu (widely used, great for beginners). Alternative: Debian or other distributions of your choice.
+2. Install a Linux distribution: Installing WSL often comes with Ubuntu pre-installed. If it doesn’t, open the Microsoft Store app and search for "WSL." You’ll find several Linux distributions available. We recommend Ubuntu, alternatively, Debian or other distributions of your choice.
 
 3. Set up the Linux distribution: After installation, open the Linux distribution (e.g., Ubuntu) and set it up by creating a username and password. Make sure to save or memorize these credentials.
 
@@ -79,14 +71,13 @@ wsl --install
 
 5. To work with files on your Windows filesystem via the Ubuntu terminal, navigate to the **/mnt/c** directory:
 ```bash
-cd /mnt/c/Users/YourWindowsUsername/WindowsFolder/filename.txt
+cd /mnt/c/Users/<Your_Windows_Username>/<Windows_Folder>/filename.txt
 ```
-Replace `YourWindowsUsername` and `WindowsFolder` with your actual username and folder path.
+Replace `<Your_Windows_Username>` and `<Windows_Folder>` with your actual username and folder path, respectively.
 
 All the tools and commands below were run using Ubuntu terminal via WSL, except when explicitly stated otherwise.
 
-# Datasets (Gold standards)
-[data](data/gold_standards)
+# [Datasets (Gold standards)](data/gold_standards)
 
 This directory contains three datasets, each focusing on a specific entity type: GPE (Geopolitical Entities), LOC (Locations), and FAC (Facilities). Ambiguous toponyms were manually geocoded using Google, GeoNames, or OpenStreetMap. These datasets aim to provide geolocation information and contextual usage of various entities.
 
