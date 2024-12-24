@@ -120,51 +120,51 @@ curl -X POST -H "Authorization: Basic base64-api-id" -H "Content-Type: text/plai
 <details>
     <summary>Programmatically, you may also use python's [requests](https://pypi.org/project/requests/) library:</summary>
 
-    ```py
-    import requests
+```py
+import requests
 
-    url = "https://cloud-api.gate.ac.uk/process/yodie-en"
-    headers = {
-        "Authorization": "Basic base64-api-id",
-        "Content-Type": "text/plain",
-        "Accept": "application/json"
-    }
-    requests.post(url, headers=headers, data={text}, timeout=60)
-    ```
+url = "https://cloud-api.gate.ac.uk/process/yodie-en"
+headers = {
+    "Authorization": "Basic base64-api-id",
+    "Content-Type": "text/plain",
+    "Accept": "application/json"
+}
+requests.post(url, headers=headers, data={text}, timeout=60)
+```
 </details>
 
 <details>
     <summary>Output:</summary>
 
-    ```json
-    {
-        "text": "The University of Oklahoma has received a  million gift from Delta Dental of Oklahoma and Delta Dental of Oklahoma Foundation to the OU College of Dentistry to fund a dental clinic on the OU-Tulsa campus.",
-        "entities": {
-            "Mention": [
-                {
-                    "indices": [
-                        4,
-                        26
-                    ],
-                    "inst": "http://dbpedia.org/resource/University_of_Oklahoma",
-                    "dbpInterestingClasses": "dbpedia-owl:Organisation|dbpedia-owl:Person",
-                    "dbpSpecificClasses": "dbpedia-owl:College|dbpedia-owl:Person",
-                    "confidence": 0.53
-                },
-                {
-                    "indices": [
-                        61,
-                        73
-                    ],
-                    "inst": "http://dbpedia.org/resource/Delta_Dental",
-                    "dbpInterestingClasses": "owl:Thing",
-                    "dbpSpecificClasses": "owl:Thing",
-                    "confidence": -0.8
-                }
-            ]
-        }
+```json
+{
+    "text": "The University of Oklahoma has received a  million gift from Delta Dental of Oklahoma and Delta Dental of Oklahoma Foundation to the OU College of Dentistry to fund a dental clinic on the OU-Tulsa campus.",
+    "entities": {
+        "Mention": [
+            {
+                "indices": [
+                    4,
+                    26
+                ],
+                "inst": "http://dbpedia.org/resource/University_of_Oklahoma",
+                "dbpInterestingClasses": "dbpedia-owl:Organisation|dbpedia-owl:Person",
+                "dbpSpecificClasses": "dbpedia-owl:College|dbpedia-owl:Person",
+                "confidence": 0.53
+            },
+            {
+                "indices": [
+                    61,
+                    73
+                ],
+                "inst": "http://dbpedia.org/resource/Delta_Dental",
+                "dbpInterestingClasses": "owl:Thing",
+                "dbpSpecificClasses": "owl:Thing",
+                "confidence": -0.8
+            }
+        ]
     }
-    ```
+}
+```
 </details>
 
 Dbpedia entities are returned so further parsing is required to get the coordinates.
