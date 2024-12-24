@@ -247,30 +247,33 @@ requests.get(overpass_url, params={'data': overpass_query})
 
 See [geopaserpy.py](models/state-of-the-art/geopaserpy.py) for complete code using Geoparsepy on the datasets.
 
-## 3. Cliff-Clavin
-https://github.com/mediacloud/cliff-annotator
-https://pypi.org/project/mediacloud-cliff/
+## 3. [Cliff-Clavin](https://github.com/mediacloud/cliff-annotator) ([see also](https://pypi.org/project/mediacloud-cliff/))
 
-- Make sure Docker Desktop is running
-- In Bash, run this:
+**Using via Cliff server:**
+- Ensure to run Docker Desktop
+- In Bash, run the cliff server:
 ```bash
 docker run -p 8080:8080 -m 8G --platform=linux/amd64 -d rahulbot/cliff-clavin:2.6.1
 ```
 - Run `'http://localhost:8080/cliff-2.6.1/parse/text?q={text_for_parsing}`
 
-To use Cliff programmatically, install it using pip:
+**Using Cliff programmatically:**
 
+First, install,
 ```bash
 pip install mediacloud-cliff
 ```
-Then instantiate and use it like this:
 
+Next:
 ```py
 from cliff.api import Cliff
 my_cliff = Cliff('http://myserver.com:8080')
 my_cliff.parse_text("This is about Einstien at the IIT in New Delhi.")
 ```
-Output:
+
+<details>
+    <summary>Output:</summary>
+
 ```json
 {
   "results": {
@@ -344,10 +347,12 @@ Output:
   "version": "2.6.0"
 }
 ```
-Complete code using Cliff Clavin on the datasets can be found [here](models/state-of-the-art/cliff.py)
+</details>
 
-## 4. DBpedia Spotlight
-https://github.com/dbpedia-spotlight/dbpedia-spotlight-model
+See [cliff.py](models/state-of-the-art/cliff.py) for complete code.
+
+## 4. [DBpedia Spotlight](https://github.com/dbpedia-spotlight/dbpedia-spotlight-model)
+
 
 - Go to Bash terminal and run curl command 
 - Eg: 
