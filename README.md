@@ -545,11 +545,17 @@ docker run -d -p 127.0.0.1:9200:9200 -e "discovery.type=single-node"
 -v $PWD/geonames_index/:/usr/share/elasticsearch/data elasticsearch:7.10.1
 ```
 
-See [mordecai](models/state-of-the-art/mordecai.py) for more details on running Mordecai.
+See [mordecai.py](models/state-of-the-art/mordecai.py) for more details on running Mordecai.
 
-## State of the Art Evaluation
+## Evaluation of traditional geoparsers
 
-### GPE (Gold standard: [GPE_2024_05_21T134100Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
+Recall that we created [three gold-standard files](#datasets-gold-standards) corresponding to the toponym classes (`GPE`s, `LOC`s, and `FAC`s) to evaluate the traditional geoparsers. For a single toponym, e.g., `Williamsburg`, a single evaluation for a given geoparser involved passing the toponym (and any required information) to the geoparser and then comparing the geo-coordinates it returns to the correct geo-coordinate within the gold-standard.
+
+To run our [evaluation](eval/evaluation.py), you'd to install: [geopy](https://geopy.readthedocs.io/en/stable/#installation), [shapely](https://shapely.readthedocs.io/en/stable/installation.html), and [NwalaTextUtils](https://github.com/oduwsdl/NwalaTextUtils).
+
+Here are the results:
+
+### [GPE](data/gold_standards/GPE_2024_05_21T134100Z.jsonl)s
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
 |Precision| **0.8182** | 0.7011 | 0.5543 | 0.7526 | 0.7544 | 0.6867
@@ -557,7 +563,7 @@ See [mordecai](models/state-of-the-art/mordecai.py) for more details on running 
 |F1-Score| 0.7629 | 0.7484 | 0.6668 | **0.834**| 0.5928 | 0.7170
 
 
-### LOC (Gold standard: [LOC_2024_05_21T134100Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
+### [LOC](data/gold_standards/LOC_2024_05_21T134100Z.jsonl)s
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
 |Precision| 0.4839 | 0.4286 | 0.253 | **0.5542** | 0.5098 | 0.4725
@@ -565,14 +571,12 @@ See [mordecai](models/state-of-the-art/mordecai.py) for more details on running 
 |F1-Score| 0.4545 | 0.4544 | 0.3414 | **0.6216** | 0.4064 | 0.5930
 
 
-### FAC (Gold standard: [FAC_2024_05_21T134100Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
+### [FAC](data/gold_standards/FAC_2024_05_21T134100Z.jsonl)s
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
 |Precision| 0.3611 | 0.3750 | 0.2262 | 0.4857 | **0.5818** | 0.4271
 |Recall| 0.4643 | 0.4737 | 0.5135 | 0.5152 | 0.4051 | **0.8723**|
 |F1-Score| 0.4064 | 0.4184 | 0.3140 | 0.5 | 0.4778 | **0.5734**|
-
-To run the evaluation code you would need the following additional modules: geopy, shapely, NwalaTextUtils
 
 # Large Language Models
 
