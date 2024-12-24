@@ -14,9 +14,9 @@ LLMs out-performed traditional geoparsers, with ChatGPT-4o-mini outperforming ot
 
 ## Table of Contents
 
-* [Using Windows? Read this.](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#using-windows-read-this)
+* [Using Windows? Read this.](#using-windows-read-this)
 
-* [Datasets (Gold standards)](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#datasets-gold-standards)
+* [Datasets (Gold standards)](#datasets-gold-standards)
 
 * <details>
   <summary>State-of-the-Art Geoparsers</summary>
@@ -52,7 +52,7 @@ LLMs out-performed traditional geoparsers, with ChatGPT-4o-mini outperforming ot
   </ul>
 </details>
 
-* [Acknowledgements](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#acknowledgements)
+* [Acknowledgements](#acknowledgements)
 
 # Using Windows? Read this.
 
