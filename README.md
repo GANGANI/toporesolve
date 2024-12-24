@@ -353,16 +353,18 @@ See [cliff.py](models/state-of-the-art/cliff.py) for complete code.
 
 ## 4. [DBpedia Spotlight](https://github.com/dbpedia-spotlight/dbpedia-spotlight-model)
 
-
 - Go to Bash terminal and run curl command 
-- Eg: 
+- E.g.,: 
 ```bash
 curl https://api.dbpedia-spotlight.org/en/annotate  \
   --data-urlencode "text=The University of Oklahoma has received a $2 million gift from Delta Dental of Oklahoma and Delta Dental of Oklahoma Foundation to the OU College of Dentistry to fund a dental clinic on the OU-Tulsa campus." \
   --data "confidence=0.35" \
   -H "Accept: application/json"
 ```
-Output:
+
+<details>
+    <summary>Output:</summary>
+
 ```json
 {
     "@text": "The University of Oklahoma has received a  million gift from Delta Dental of Oklahoma and Delta Dental of Oklahoma Foundation to the OU College of Dentistry to fund a dental clinic on the OU-Tulsa campus.",
@@ -402,22 +404,24 @@ Output:
     ]
 }
 ```
-The same outcome will be gotten by using the `requests` library to send a POST request.
+</details>
 
-Complete code using Dbpedia Spotlight on the datasets can be found [here](models/state-of-the-art/dbpedia.py)
+The same outcome can be gotten by sending an HTTP POST [request via python](models/state-of-the-art/dbpedia.py).
 
-## 5. Edinburgh Geoparser
-https://www.ltg.ed.ac.uk/software/geoparser/
+## 5. [Edinburgh Geoparser](https://www.ltg.ed.ac.uk/software/geoparser/)
 
 ### Installation
-- Install networkx, xmltodict, bs4
-- Download geoparser-1.3.tar.gz from https://www.ltg.ed.ac.uk/software/geoparser/ and extract
-- Navigate to the Script Directory in terminal
-- Run an example text file
+- Install [networkx](https://networkx.org/documentation/stable/install.html), [xmltodict](https://pypi.org/project/xmltodict/), [BeautifulSoup4](https://pypi.org/project/beautifulsoup4/)
+- Download and extract [geoparser-1.3.tar.gz](https://www.ltg.ed.ac.uk/software/geoparser/)
+- Navigate to the `Script` Directory in terminal
+- Process news text from a file example.txt
 ```bash
 cat ../in/example.txt | ./run -t plain -g geonames -o ../out example
 ```
-Command options:
+
+<details>
+    <summary>Run command options:</summary>
+
 ```
 Input type
 -t   plain          (plain text)
@@ -439,14 +443,13 @@ Gazetteer options
 
 -l lat long radius score (use this if you know what geographical area your ambiguous toponym is likely to be in)
 ```
+</details>
 
-Complete code using Edinburgh Geoparser on the datasets can be found [here](models/state-of-the-art/edinburgh.py).
+See [edinburgh.py](models/state-of-the-art/edinburgh.py) for more details on using the Edinburgh Geoparser.
 
-## 6. Mordecai3
-https://github.com/ahalterman/mordecai3
+## 6. [Mordecai3](https://github.com/ahalterman/mordecai3)
 
-- Install these: mordecai, wget
-
+- Install these
 ```bash 
 $ pip install textacy mordecai3 unzip
 ```
@@ -457,22 +460,21 @@ pip install spacy==3.6.1
 pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_trf-3.6.1/en_core_web_trf-3.6.1.tar.gz
 ```
 
-Create a Geonames index running locally in Elasticsearch container (make sure Docker Desktop is open, and resources integration for Ubuntu is selected).
+- Create a Geonames index running locally in Elasticsearch container (make sure Docker Desktop is open, and resources integration for Ubuntu is selected).
 ```bash
 $ git clone https://github.com/openeventdata/es-geonames.git
 $ cd es-geonames
 $ bash create_index.sh
 ```
-Make sure this completes successfully. 
-
-To test, open python in your terminal (ubuntu) and run the below:
-
+Make sure this completes successfully. To test, open python in your terminal (ubuntu) and run the below:
 ```py
 >>> from mordecai3 import Geoparser
 >>> geo = Geoparser()
 >>> geo.geoparse_doc("I visited Alexanderplatz in Berlin.")
 ```
-Output:
+
+<details>
+    <summary>Output:</summary>
 
 ```json
 {"doc_text": "I visited Alexanderplatz in Berlin.", "event_location_raw": "", "geolocated_ents": [
@@ -535,14 +537,15 @@ Output:
     ]
 }
 ```
+</details>
 
-Once built, the index can be started like this:
+Once built, the index can be started by running:
 ```bash
 docker run -d -p 127.0.0.1:9200:9200 -e "discovery.type=single-node" 
 -v $PWD/geonames_index/:/usr/share/elasticsearch/data elasticsearch:7.10.1
 ```
 
-Complete code using Mordecai3 on the datasets can be found [here](models/state-of-the-art/mordecai.py)
+See [mordecai](models/state-of-the-art/mordecai.py) for more details on running Mordecai.
 
 ## State of the Art Evaluation
 
