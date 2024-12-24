@@ -132,6 +132,7 @@ requests.post(url, headers=headers, data={text}, timeout=60)
 
 <details>
 <summary>Output:</summary>
+
 ```json
 {
     "text": "The University of Oklahoma has received a  million gift from Delta Dental of Oklahoma and Delta Dental of Oklahoma Foundation to the OU College of Dentistry to fund a dental clinic on the OU-Tulsa campus.",
