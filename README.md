@@ -6,9 +6,9 @@ What follows is an exploration of various toponym disambiguation tools. Specific
 
 TL;DR
 
-For [dedicated geoparsers](https://arxiv.org/pdf/2207.01683), Geopolitical (`GPE`) entities (e.g., countries, states, counties, cities) are the easiest to disambiguate, next are Location (`LOC`) entities (e.g., Non-GPE locations, mountain ranges, bodies of water), and then Facility (`FAC`) entities (e.g., Buildings, airports, highways, bridges, etc.). Cliff Clavin out-performed other geoparsers for both disambiguating GPEs and LOCs. DBPedia spotlight was the best-perfomingn geoparser for FACs
+For [dedicated geoparsers](https://arxiv.org/pdf/2207.01683), our results show that geopolitical (`GPE`) entities (e.g., countries, states, counties, cities) are the easiest to disambiguate, next are location (`LOC`) entities (e.g., Non-GPE locations, mountain ranges, bodies of water), and then facility (`FAC`) entities (e.g., Buildings, airports, highways, bridges, etc.). [Cliff Clavin](https://github.com/mediacloud/cliff-annotator) out-performed other geoparsers for both disambiguating GPEs and LOCs. [DBPedia spotlight](https://github.com/dbpedia-spotlight/dbpedia-spotlight-model) was the best-performing geoparser for FACs.
 
-LLMs out-perform dedicated geoparsers, with ChatGPT-4o-mini outperfoming
+LLMs out-performed dedicated geoparsers, with ChatGPT-4o-mini outperforming other general-purpose and fine-tuned Large Language Models (LLMs).
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ LLMs out-perform dedicated geoparsers, with ChatGPT-4o-mini outperfoming
 
 * [Datasets (Gold standards)](https://github.com/wm-newslab/toponym-disambiguation?tab=readme-ov-file#datasets-gold-standards)
 
-* <details>
+&nbsp; <details>
   <summary>State-of-the-Art Geoparsers</summary>
   <ul>
     <li><a href="#gate-yodie">GATE YODIE</a></li>
