@@ -101,7 +101,7 @@ Each line of a gold-standard file contains a JSON object with the following fiel
 
 ## 1. [GATE YODIE](https://cloud.gate.ac.uk/info/help/online-api.html)
 
-**Installation**
+### Installation:
 - Create an account at [https://cloud.gate.ac.uk/login/full](https://cloud.gate.ac.uk/login/full)
 - Request an API key
 - Once you have the API key ID and password, make an HTTP POST request to the API endpoint: [https://cloud-api.gate.ac.uk/process/yodie-en](https://cloud-api.gate.ac.uk/process/yodie-en)
@@ -171,11 +171,11 @@ requests.post(url, headers=headers, data={text}, timeout=60)
 Dbpedia entities are returned so further parsing is required to get the coordinates:
 `result = get_dbpedia_coords( dbpedia["entities"]["Mention"][0] )`. See [gate.py](models/state-of-the-art/gate.py) for complete code using Gate Yodie on the datasets.
 
-## 2. Geoparsepy (using windows terminal pipenv)
-https://github.com/stuartemiddleton/geoparsepy
+## 2. [Geoparsepy (using windows terminal pipenv)](https://github.com/stuartemiddleton/geoparsepy)
 
 ### Installation:
-- Download Postgre: when you install, you will be asked to give a password, take note of this, also you will be asked to select a port: choose  5432 https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+
+- [Download PostgreSQL](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads): when you install, you will be asked to give a password, take note of this, also you will be asked to select a port: choose `5432`
 - Install `requests` and the `geoparsepy` library
 
 ```bash
@@ -183,9 +183,9 @@ pip install requests
 pip install geoparsepy
 ```
 
-Installing the library should also automatically install psycopg2>=2.8 nltk>=3.4 numpy>=1.18 shapely>=1.6 setuptools>=46 soton-corenlppy>=1.0 
-but if not, install those also using pip.
-Download NLTK corpora:
+Installing these should also automatically install `psycopg2>=2.8`, `nltk>=3.4`, `numpy>=1.18`, `shapely>=1.6`, `setuptools>=46`, `soton-corenlppy>=1.0`, but if not, install them.
+
+- Download NLTK corpora:
 
 ```python
 import nltk
@@ -194,8 +194,7 @@ nltk.download('stopwords')
 nltk.download('wordnet')
 ```
 
-- Download pre-processed UTF-8 encoded SQL table dumps:
-    - download zip file from Google drive: https://drive.google.com/file/d/1xyCjQox6gCoN8e0upHHyeMLV-uLirthS/view?usp=sharing
+- Download [pre-processed UTF-8 encoded SQL table dumps](https://drive.google.com/file/d/1xyCjQox6gCoN8e0upHHyeMLV-uLirthS/view?usp=sharing):
 - Then unzip the files manually or by running the following in bash
 ```bash
 unzip geoparsepy_preprocessed_tables.tar.zip
@@ -212,7 +211,7 @@ CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
 CREATE EXTENSION IF NOT EXISTS hstore;
 ```
 
-Alternatively, open pgAdmin, click Databases and then Create. Put the database name and save. While still in the app, select your database, click the psql tool icon and run the create extension commands above.
+Alternatively, open pgAdmin, click Databases and then Create. Input the database name and save. While still in the app, select your database, click the psql tool icon and run the create extension commands above.
 
 - Import the precomputed database tables for global cities and places. In powershell, navigate to the folder where your SQL tables are saved and run the following:
 ```powershell
@@ -222,18 +221,18 @@ Alternatively, open pgAdmin, click Databases and then Create. Put the database n
 & 'C:\Program Files\PostgreSQL\16\bin\psql' -U postgres -d openstreetmap -f europe_places.sql
 ```
 
-Ran the example code from the github repo and got the same results. Note in example.py, there’s a line: 
+You may run [the example code](https://github.com/stuartemiddleton/geoparsepy/blob/master/example.py) and attempt to get the same results. Note that the example contains a line: 
 ```py
 databaseHandle = soton_corenlppy
-                .PostgresqlHandler
-                .PostgresqlHandler('postgres', 'password', 
-                                 'localhost', 5432, 
-                                 'openstreetmap', 600)
+    .PostgresqlHandler
+    .PostgresqlHandler('postgres', 'password', 
+                     'localhost', 5432, 
+                     'openstreetmap', 600)
 ```
 
-The 2nd string is password, so change it to whatever password you chose when downloading PostgreSQL.
+Ensure to replace the `password` string with whatever password you chose when downloading PostgreSQL.
 
-Note: Geoparsepy returns OSM IDs, not coordinates, so there is need to convert these. The Overpass API performs this process.
+Note: Geoparsepy returns OSM IDs, not coordinates. The Overpass API may be used to convert OSM IDs to coordinates:
 ```py
 import requests 
 
@@ -246,7 +245,7 @@ overpass_query = f"""
 requests.get(overpass_url, params={'data': overpass_query})
 ```
 
-Complete code using Geoparsepy on the datasets can be found [here](models/state-of-the-art/geopaserpy.py)
+See [geopaserpy.py](models/state-of-the-art/geopaserpy.py) for complete code using Geoparsepy on the datasets.
 
 ## 3. Cliff-Clavin
 https://github.com/mediacloud/cliff-annotator
