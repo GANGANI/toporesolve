@@ -96,6 +96,23 @@ Each line of a gold-standard file contains a JSON object with the following fiel
 - `link_extracted_from`: Where the link was sourced (e.g., a news website).
 - `media_dets`: Details about the media outlet (e.g., name, type).
 
+## Evaluation Process
+
+For a single toponym, e.g., `Williamsburg`, a single evaluation for a given geoparser involved passing the toponym (and any required information) to the geoparser and then comparing the geo-coordinates it returns to the correct geo-coordinate within the gold-standard.
+
+1. **Evaluation function**: The core evaluation function takes two arguments: a path to the gold standard dataset file, and a `match_proximity_radius_miles` parameter with a default value of 25 miles. If the geocoordinates produced by a toponym disambiguation tool is within 25 miles of the reference (gold-standard) coordinate, it is counted as a **True** match, else **False**. If the toponym disambiguation tools doesn't return a coordinate, it counted as a **null**. 
+
+Note: For GPEs such as states, countries, continents, etc, the `match_proximity_radius_miles` radius is not used. Instead, the entire geographical polygon of the state or country was used as the radius. This is because any point within the state counts as the state, even if it is more than 25 miles away from the reference (gold-standard) coordinate.
+
+2. **Reading and processing data**: The script reads the gold-standard files line by line. Each line corresponding to a toponym is processed as follows:
+    - Extract toponym (e.g., `Williamsburg`) and actual (gold-standard) geo-coordinate (`37.271133, -76.716614`) and context sentences.
+    - Issue toponym to toponym disambiguation tool
+    - Compare actual geo-coordinates with the coordinate returned by the tool
+    - Update `TP: True Positive`, `FP: False Positive`, and `FN: False Negative` counts. (No `TN: True Negative`) 
+
+3. **Result Analysis**: Use `TP`, `FP`, and `TN` counts to compute evaluation metrics (Precision, Recall, F1)
+
+To run our [evaluation](eval/evaluation.py), you'd have to install: [geopy](https://geopy.readthedocs.io/en/stable/#installation), [shapely](https://shapely.readthedocs.io/en/stable/installation.html), and [NwalaTextUtils](https://github.com/oduwsdl/NwalaTextUtils).
 
 # Traditional Geoparsers
 
@@ -549,9 +566,7 @@ See [mordecai.py](models/state-of-the-art/mordecai.py) for more details on runni
 
 ## Evaluation of traditional geoparsers
 
-Recall that we created [three gold-standard files](#datasets-gold-standards) corresponding to the toponym classes (`GPE`s, `LOC`s, and `FAC`s) to evaluate the traditional geoparsers. For a single toponym, e.g., `Williamsburg`, a single evaluation for a given geoparser involved passing the toponym (and any required information) to the geoparser and then comparing the geo-coordinates it returns to the correct geo-coordinate within the gold-standard.
-
-To run our [evaluation](eval/evaluation.py), you'd to install: [geopy](https://geopy.readthedocs.io/en/stable/#installation), [shapely](https://shapely.readthedocs.io/en/stable/installation.html), and [NwalaTextUtils](https://github.com/oduwsdl/NwalaTextUtils).
+Recall that we created [three gold-standard files](#datasets-gold-standards) corresponding to the toponym classes (`GPE`s, `LOC`s, and `FAC`s) to [evaluate](#evaluation-process) the traditional geoparsers. For a single toponym, e.g., `Williamsburg`, a single evaluation for a given geoparser involved passing the toponym (and any required information) to the geoparser and then comparing the geo-coordinates it returns to the correct geo-coordinate within the gold-standard.
 
 Here are the results:
 
@@ -580,23 +595,23 @@ Here are the results:
 
 # Large Language Models
 
-A total of 5 LLMs were tested in various ways. GPT-4o-mini was tested using the API for a fee. Others such as Llama2, Mistral, etc are opensource and were tested via HuggingFace, some of which were fine-tuned prior to testing. 
+We evaluated 1 proprietary general-purpose LLM (GPT-4o-mini), 2 open-source general-purpose ones (Llama2-7B, Phi3-mini-4k), and 3 open-source LLMs (Llama2-7B-LoRA-Toponym-Resolution, Llama2-13B-LoRA-Toponym-Resolution, and Mistral-7B-LoRA-Toponym-Resolution) [fined tuned specifically for the toponym disambiguation](https://doi.org/10.1080/13658816.2024.2405182) task.
 
-## Regular (Non-Finetuned) Models
+## General-purpose (non-finetuned) LLMs
 
 ## gpt-4o-mini
 
-This GPT model is a more affordable and faster option than **gpt-4o** (which is high-level and used for complex tasks, and hence, more expensive), perfect for lightweight tasks. It costs $0.150 per 1M input tokens as compared to gpt-4o's $2.50 per 1M input tokens. See https://openai.com/api/pricing/ for details.
+This GPT model is a more affordable and faster option than **gpt-4o** (which is for more complex tasks, and hence, more expensive), and is perfect for lightweight tasks. It costs $0.150 per 1M input tokens as compared to gpt-4o's $2.50 per 1M input tokens. See https://openai.com/api/pricing/ for details.
 
 ### Requirements
 - Create an account on OpenAI's development platform (https://platform.openai.com/)
-- Go to Settings. Under Organization, select Billing. There click Add payment details.
+- Go to Settings. Under Organization, select Billing. Click Add payment details.
 - Fill in necessary info (such as payment information, etc)
-- Select credit limit (has upper limit of 100 dollars), and if selecting auto-renewal, choose when to do so and amount to renew with.
-- You can perform tasks in the user iterface, or you can create an API key (with necessary permissions) [here](https://platform.openai.com/api-keys) to use in code.
+- Select credit limit (upper limit of $100), and set auto-renewal options. (We didn't use auto-renewal).
+- You can perform tasks on the user interface, or you can create an API key (with necessary permissions) [here](https://platform.openai.com/api-keys) to use within your code.
 - You can view your usage details, how much credit you have left, etc on the [dashboard](https://platform.openai.com/usage).
 
-### Usage (Python)
+### Python usage of gpt-4o-mini
 
 ```py
 client = OpenAI(api_key = 'api-key') # replace with your api key
@@ -610,11 +625,11 @@ response = client.chat.completions.create(
 )
 ```
 
-Complete code using gpt4o-mini to perform toponym disambiguation on the datasets can be found [here](models/gpt4.py)
+See [gpt-4o-mini.py](gpt-4o-mini.py) for complete code using the gpt4o-mini to perform toponym disambiguation on the gold-standard datasets.
 
 *Note: Using this API is really fast and efficient. Takes seconds to a few minutes for hundreds of data. Good for those who want quick results and don't mind the cost.*
 
-## Llama2-7B 
+## Llama2-7B
 
 This model was developed by Meta. It can be accessed via HuggingFace in 2 ways:
 
@@ -638,13 +653,14 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
 model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
 ```
-Complete code using Llama2-7B to perform toponym disambiguation on the datasets can be found [here](models/llama2.py).
 
-* *Note: You need to have a HuggingFace account, access to the model, and an access token. You can request access from the model [card](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf). And you can create an access token with needed permissions here: https://huggingface.co/settings/tokens. This functions similarly to an API key. You can use one access token for as many models you want.*
+See [llama2-7b.py](models/llama2-7b.py) for complete code using Llama2-7B for toponym disambiguation on the gold-standard datasets.
+
+* *Note: You need to have a HuggingFace account, access to the model, and an access token. You can request access from the [model card](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf). And you can [create an access token]( https://huggingface.co/settings/tokens) with the needed permissions. This functions similarly to an API key. You can use one access token for as many models you want.*
 
 ## Phi3-mini-4k
 
-This model was developed by Microsoft. Similar to Llama2, it can be accessed via HuggingFace. View the model details on the [card](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct).
+This model was developed by Microsoft. Similar to Llama2-7b, it can be accessed via HuggingFace. View the model details on the [card](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct).
 
 ```py
 # Use a pipeline as a high-level helper
@@ -663,16 +679,15 @@ tokenizer = AutoTokenizer.from_pretrained("microsoft/Phi-3-mini-4k-instruct", tr
 model = AutoModelForCausalLM.from_pretrained("microsoft/Phi-3-mini-4k-instruct", trust_remote_code=True)
 ```
 
-Complete code using Llama2-7B to perform toponym disambiguation on the datasets can be found [here](models/phi3.py).
+See [phi3-mini-4k.py](models/phi3-mini-4k.py) for complete code using the Phi3-mini-4k to perform toponym disambiguation on the gold-standard.
 
+## Fine-tuned models
 
-## Finetuned Models
-
-The finetuned models (Llama27b, Llama213b, and Mistral7b) were sourced from https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md. The authors trained 5 LLMs on comprehensive datasets derived from news articles, tweets, Wikipedia, etc. Read the full paper [here](https://www.tandfonline.com/doi/full/10.1080/13658816.2024.2405182). Their data, training and testing code and instrcutions for running them can all be found in the github repo linked above.
+The fine-tuned models (Llama2-7B-LoRA-Toponym-Resolution, Llama2-13B-LoRA-Toponym-Resolution, and Mistral-7B-LoRA-Toponym-Resolution) were sourced from [https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md](https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md). The [authors](https://doi.org/10.1080/13658816.2024.2405182) trained 5 LLMs on comprehensive datasets derived from news articles, tweets, Wikipedia, etc.. Their data, training, testing code, and instructions for running their fine-tuned models are [available online](https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md).
 
 ### Llama2-7B-LoRA-Toponym-Resolution
 
-The model uses **meta-llama/Llama-2-7b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the HuggingFace model [card] (https://huggingface.co/xukehu/Llama2-7B-LoRA-Toponym-Resolution).
+This model uses **meta-llama/Llama-2-7b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card] (https://huggingface.co/xukehu/Llama2-7B-LoRA-Toponym-Resolution).
 
 - Start by loading the model and saving it
 ```py
@@ -689,7 +704,7 @@ model = PeftModel.from_pretrained(model, "xukehu/Llama2-7B-LoRA-Toponym-Resoluti
 model.save_pretrained("path_of_the_lora_weights")
 ```
 
-- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from the repo in your terminal. Ensure to edit the code to run on your dataset. Depending on the format of your datasets, you may need to make some changes to the code.
+- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from your terminal. Ensure to edit the code to run on your dataset. Depending on the format of your datasets, you may need to modify the code.
 
 ```bash
 $BASE_MODEL="meta-llama/Llama-2-7b-chat-hf"
@@ -698,42 +713,11 @@ $LORA_WEIGHTS="path_of_the_lora_weights"
 python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
 ```
 
-### Mistral-7B-LoRA-Toponym-Resolution
-
-The model uses **mistral-7B-v0.1-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the HuggingFace model [card] (https://huggingface.co/xukehu/Mistral-7B-LoRA-Toponym-Resolution).
-
-Following same steps as before:
-
-- Start by loading the model and saving it
-```py
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from peft import PeftModel
-
-# Load the base model and tokenizer
-model = AutoModelForCausalLM.from_pretrained("kittn/mistral-7B-v0.1-hf")
-tokenizer = AutoTokenizer.from_pretrained("kittn/mistral-7B-v0.1-hf")
-
-# Load LoRA weights for toponym resolution
-model = PeftModel.from_pretrained(model, "xukehu/Mistral-7B-LoRA-Toponym-Resolution")
-
-model.save_pretrained("path_of_the_lora_weights")
-```
-
-- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from the repo in your terminal. Ensure to edit the code to use the correct model and to run on your dataset. Depending on the format of your datasets, you may need to make some changes to the code.
-
-```bash
-$BASE_MODEL="kittn/mistral-7B-v0.1-hf"
-$LORA_WEIGHTS="path_of_the_lora_weights" 
-
-python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
-```
-
 ### Llama2-13B-LoRA-Toponym-Resolution
 
-The model uses **Llama-2-13b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the HuggingFace model [card] (https://huggingface.co/xukehu/Llama2-13B-LoRA-Toponym-Resolution).
+This model uses **Llama-2-13b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card] (https://huggingface.co/xukehu/Llama2-13B-LoRA-Toponym-Resolution).
 
 Following same steps as before:
-
 - Start by loading the model and saving it
 ```py
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -749,7 +733,7 @@ model = PeftModel.from_pretrained(model, "xukehu/Llama2-13B-LoRA-Toponym-Resolut
 model.save_pretrained("path_of_the_lora_weights")
 ```
 
-- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from the repo in your terminal. Ensure to edit the code to use the correct model and to run on your dataset. Depending on the format of your datasets, you may need to make some changes to the code.
+- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from your terminal. Ensure to edit the code to use the correct model and to run on your dataset. Depending on the format of your datasets, you may need to modify the code.
 
 ```bash
 $BASE_MODEL="meta-llama/Llama-2-13b-chat-hf"
@@ -758,48 +742,61 @@ $LORA_WEIGHTS="path_of_the_lora_weights"
 python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
 ```
 
+### Mistral-7B-LoRA-Toponym-Resolution
+
+This model uses **mistral-7B-v0.1-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card] (https://huggingface.co/xukehu/Mistral-7B-LoRA-Toponym-Resolution).
+
+Following the same steps as before:
+- Start by loading the model and saving it
+```py
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+
+# Load the base model and tokenizer
+model = AutoModelForCausalLM.from_pretrained("kittn/mistral-7B-v0.1-hf")
+tokenizer = AutoTokenizer.from_pretrained("kittn/mistral-7B-v0.1-hf")
+
+# Load LoRA weights for toponym resolution
+model = PeftModel.from_pretrained(model, "xukehu/Mistral-7B-LoRA-Toponym-Resolution")
+
+model.save_pretrained("path_of_the_lora_weights")
+```
+
+- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from your terminal. Ensure to edit the code to use the correct model and to run on your dataset. Depending on the format of your datasets, you may need to modify the code.
+
+```bash
+$BASE_MODEL="kittn/mistral-7B-v0.1-hf"
+$LORA_WEIGHTS="path_of_the_lora_weights" 
+
+python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
+```
+
 ### Important Note
 
-Though free to use, loading HuggingFace models take a good amount of time and requires substantial available memory. It is advisable to use GPUs when running the models. For running and testing all the models (with the exception of gpt-4o-mini), High Performance Computing (HPC) systems provided by William and Mary were utilized. These systems are accessible to W&M students and faculty and provide access to GPUs for data intense projects. See https://www.wm.edu/offices/it/services/researchcomputing/atwm/.
+Though free to use, loading HuggingFace models take a good amount of time and requires substantial available memory. It is advisable to use GPUs when running the models. For running and testing all the models (with the exception of gpt-4o-mini), High Performance Computing (HPC) systems provided by William and Mary were utilized. These systems are accessible to W&M students and faculty and provide access to [GPUs for data intense projects](https://www.wm.edu/offices/it/services/researchcomputing/atwm/).
 
 ## Results
 
-### GPE (Gold standard: [GPE_2024_05_21T134100Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
+### [GPE](data/gold_standards/GPE_2024_05_21T134100Z.jsonl)s
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
 |Precision| **0.902**|0.784|0.765|0.8586|0.85|0.8788
 |Recall| **1.0** |**1.0**|0.949|0.9659 |0.977|0.9667
 |F1-Score| **0.948**|0.879|0.847|0.9096|0.909|0.9188
 
-### LOC (Gold standard: [LOC_2024_05_21T134100Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
+### [LOC](data/gold_standards/LOC_2024_05_21T134100Z.jsonl)s
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
 |Precision| **0.7**|0.45|0.495| 0.5281|0.5778|0.5435
 |Recall| **0.972**|0.957|0.870| 0.7833|0.8125|0.8333
 |F1-Score| **0.813**|0.613|0.632| 0.6297|0.6757|0.6577
 
-### FAC (Gold standard: [FAC_2024_05_21T134100Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
+### [FAC](data/gold_standards/FAC_2024_05_21T134100Z.jsonl)s
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
 |Precision| **0.931**|0.667|0.693| 0.7561|0.8429|0.8
 |Recall| **1.0**|0.957|0.813| 0.7561|0.6484|0.7442
 |F1-Score| **0.964**|0.785|0.748| 0.7561|0.7323|0.7707
-
-
-## Evaluation Process
-
-The evaluation for these tools follow similar formats and share major components.
-
-1. **Evaluation Function**: The core function takes two arguments: a path to the gold standard dataset file which contains the data to be evaluated, and a `match_proximity_radius_miles` parameter with a default value of 25 miles. If the coordinates prodcued by the tool are within 25 miles of the reference coordinates, that is counted as a **True** match, else **False**. If the geoparsing tools doesn't give an output coordinate, that is **null**. 
-
-Note: For GPEs such as states, countries, continents, etc, a distance radius was not used. Instead, the entire geographical polygon of the state or country was used as the radius. This is because any point within the state counts as the state, even if it is more than 25 miles away from the reference coordinates.
-
-2. **Reading and Processing Data**: The script reads the dataset line by line. Each line is parsed into a dictionary. It then processes each place in the file. The process involves:
-    - Extracting reference coordinates and context sentences.
-    - Comparing the reference coordinates with the coordinates produced by the geoparsing tool.
-    - Appending the results, including the reference place and resolved places, to the report json.
-
-3. **Result Analysis**: The script updates the TP, FP, and FN counts based on whether the result matched the reference.
 
 
 # Acknowledgements
