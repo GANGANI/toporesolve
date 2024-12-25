@@ -43,9 +43,9 @@ LLMs out-performed traditional geoparsers, with ChatGPT-4o-mini outperforming ot
     </li>
     <li><a href="#fine-tuned-models">Finetuned Models</a>
       <ul>
-        <li><a href="#10-llama2-7b-lora-toponym-resolution">Llama2-7B</a></li>
-        <li><a href="#11-llama2-13b-lora-toponym-resolution">Mistral-7B</a></li>
-        <li><a href="#12-mistral-7b-lora-toponym-resolution">Llama2-13B</a></li>
+        <li><a href="#10-llama2-7b-lora-toponym-resolution">Llama2-7B-LoRA-Toponym-Resolution</a></li>
+        <li><a href="#11-llama2-13b-lora-toponym-resolution">Llama2-13B-LoRA-Toponym-Resolution</a></li>
+        <li><a href="#12-mistral-7b-lora-toponym-resolution">Mistral-7B-LoRA-Toponym-Resolution</a></li>
       </ul>
     </li>
     <li><a href="#evaluation-results">LLMs Evaluation</a></li>
