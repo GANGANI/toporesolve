@@ -19,33 +19,33 @@ LLMs out-performed traditional geoparsers, with ChatGPT-4o-mini outperforming ot
 * [Datasets (Gold standards)](#datasets-gold-standards)
 
 * <details>
-  <summary>State-of-the-Art Geoparsers</summary>
+  <summary>Traditional Geoparsers</summary>
   <ul>
-    <li><a href="#gate-yodie">GATE YODIE</a></li>
-    <li><a href="#geoparsepy">Geoparsepy</a></li>
-    <li><a href="#cliff-clavin">Cliff-Clavin</a></li>
-    <li><a href="#dbpedia-spotlight">DBpedia Spotlight</a></li>
-    <li><a href="#edinburgh-geoparser">Edinburgh Geoparser</a></li>
-    <li><a href="#mordecai">Mordecai</a></li>
-    <li><a href="#evaluation">Evaluation</a></li>
+    <li><a href="#1-gate-yodie">GATE YODIE</a></li>
+    <li><a href="#2-geoparsepy-using-windows-terminal-pipenv">Geoparsepy</a></li>
+    <li><a href="#3-cliff-clavin-see-also">Cliff-Clavin</a></li>
+    <li><a href="#4-dbpedia-spotlight">DBpedia Spotlight</a></li>
+    <li><a href="#5-edinburgh-geoparser">Edinburgh Geoparser</a></li>
+    <li><a href="#6-mordecai3">Mordecai</a></li>
+    <li><a href="#evaluation-of-traditional-geoparsers">Evaluation</a></li>
   </ul>
 </details>
 
 * <details>
   <summary>Large Language Models</summary>
   <ul>
-    <li><a href="#regular-non-finetuned-models">Non-Finetuned Models</a>
+    <li><a href="##general-purpose-non-finetuned-llms">General-purpose (non-finetuned) LLMs</a>
       <ul>
-        <li><a href="#gpt4o-mini">GPT4o-mini</a></li>
-        <li><a href="#llama2-7b">Llama2-7B</a></li>
-        <li><a href="#phi3-mini-4k">Phi3-mini-4k</a></li>
+        <li><a href="#7-gpt4o-mini">GPT4o-mini</a></li>
+        <li><a href="#8-llama2-7b">Llama2-7B</a></li>
+        <li><a href="#9-phi3-mini-4k">Phi3-mini-4k</a></li>
       </ul>
     </li>
-    <li><a href="#finetuned-models">Finetuned Models</a>
+    <li><a href="#fine-tuned-models">Finetuned Models</a>
       <ul>
-        <li><a href="#llama2-7b-lora-toponym-resolution">Llama2-7B</a></li>
-        <li><a href="#mistral-7b-lora-toponym-resolution">Mistral-7B</a></li>
-        <li><a href="#llama2-13b-lora-toponym-resolution">Llama2-13B</a></li>
+        <li><a href="#10-llama2-7b-lora-toponym-resolution">Llama2-7B</a></li>
+        <li><a href="#11-mistral-7b-lora-toponym-resolution">Mistral-7B</a></li>
+        <li><a href="#12-llama2-13b-lora-toponym-resolution">Llama2-13B</a></li>
       </ul>
     </li>
     <li><a href="#results">LLMs Evaluation</a></li>
@@ -599,7 +599,7 @@ We evaluated 1 proprietary general-purpose LLM (GPT-4o-mini), 2 open-source gene
 
 ## General-purpose (non-finetuned) LLMs
 
-## gpt-4o-mini
+## 7. gpt-4o-mini
 
 This GPT model is a more affordable and faster option than **gpt-4o** (which is for more complex tasks, and hence, more expensive), and is perfect for lightweight tasks. It costs $0.150 per 1M input tokens as compared to gpt-4o's $2.50 per 1M input tokens. See https://openai.com/api/pricing/ for details.
 
@@ -629,7 +629,7 @@ See [gpt-4o-mini.py](gpt-4o-mini.py) for complete code using the gpt4o-mini to p
 
 *Note: Using this API is really fast and efficient. Takes seconds to a few minutes for hundreds of data. Good for those who want quick results and don't mind the cost.*
 
-## Llama2-7B
+## 8. Llama2-7B
 
 This model was developed by Meta. It can be accessed via HuggingFace in 2 ways:
 
@@ -658,7 +658,7 @@ See [llama2-7b.py](models/llama2-7b.py) for complete code using Llama2-7B for to
 
 * *Note: You need to have a HuggingFace account, access to the model, and an access token. You can request access from the [model card](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf). And you can [create an access token]( https://huggingface.co/settings/tokens) with the needed permissions. This functions similarly to an API key. You can use one access token for as many models you want.*
 
-## Phi3-mini-4k
+## 9. Phi3-mini-4k
 
 This model was developed by Microsoft. Similar to Llama2-7b, it can be accessed via HuggingFace. View the model details on the [card](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct).
 
@@ -685,7 +685,7 @@ See [phi3-mini-4k.py](models/phi3-mini-4k.py) for complete code using the Phi3-m
 
 The fine-tuned models (Llama2-7B-LoRA-Toponym-Resolution, Llama2-13B-LoRA-Toponym-Resolution, and Mistral-7B-LoRA-Toponym-Resolution) were sourced from [https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md](https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md). The [authors](https://doi.org/10.1080/13658816.2024.2405182) trained 5 LLMs on comprehensive datasets derived from news articles, tweets, Wikipedia, etc.. Their data, training, testing code, and instructions for running their fine-tuned models are [available online](https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md).
 
-### Llama2-7B-LoRA-Toponym-Resolution
+### 10. Llama2-7B-LoRA-Toponym-Resolution
 
 This model uses **meta-llama/Llama-2-7b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card] (https://huggingface.co/xukehu/Llama2-7B-LoRA-Toponym-Resolution).
 
@@ -713,7 +713,7 @@ $LORA_WEIGHTS="path_of_the_lora_weights"
 python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
 ```
 
-### Llama2-13B-LoRA-Toponym-Resolution
+### 11. Llama2-13B-LoRA-Toponym-Resolution
 
 This model uses **Llama-2-13b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card] (https://huggingface.co/xukehu/Llama2-13B-LoRA-Toponym-Resolution).
 
@@ -742,7 +742,7 @@ $LORA_WEIGHTS="path_of_the_lora_weights"
 python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
 ```
 
-### Mistral-7B-LoRA-Toponym-Resolution
+### 12. Mistral-7B-LoRA-Toponym-Resolution
 
 This model uses **mistral-7B-v0.1-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card] (https://huggingface.co/xukehu/Mistral-7B-LoRA-Toponym-Resolution).
 
