@@ -34,9 +34,9 @@ LLMs out-performed traditional geoparsers, with ChatGPT-4o-mini outperforming ot
 * <details>
   <summary>Large Language Models</summary>
   <ul>
-    <li><a href="##general-purpose-non-finetuned-llms">General-purpose (non-finetuned) LLMs</a>
+    <li><a href="#general-purpose-non-finetuned-llms">General-purpose (non-finetuned) LLMs</a>
       <ul>
-        <li><a href="#7-gpt4o-mini">GPT4o-mini</a></li>
+        <li><a href="#7-gpt-4o-mini">GPT4o-mini</a></li>
         <li><a href="#8-llama2-7b">Llama2-7B</a></li>
         <li><a href="#9-phi3-mini-4k">Phi3-mini-4k</a></li>
       </ul>
@@ -44,11 +44,11 @@ LLMs out-performed traditional geoparsers, with ChatGPT-4o-mini outperforming ot
     <li><a href="#fine-tuned-models">Finetuned Models</a>
       <ul>
         <li><a href="#10-llama2-7b-lora-toponym-resolution">Llama2-7B</a></li>
-        <li><a href="#11-mistral-7b-lora-toponym-resolution">Mistral-7B</a></li>
-        <li><a href="#12-llama2-13b-lora-toponym-resolution">Llama2-13B</a></li>
+        <li><a href="#11-llama2-13b-lora-toponym-resolution">Mistral-7B</a></li>
+        <li><a href="#12-mistral-7b-lora-toponym-resolution">Llama2-13B</a></li>
       </ul>
     </li>
-    <li><a href="#results">LLMs Evaluation</a></li>
+    <li><a href="#evaluation-results">LLMs Evaluation</a></li>
   </ul>
 </details>
 
@@ -771,11 +771,11 @@ $LORA_WEIGHTS="path_of_the_lora_weights"
 python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
 ```
 
-### Important Note
+### Important note
 
 Though free to use, loading HuggingFace models take a good amount of time and requires substantial available memory. It is advisable to use GPUs when running the models. For running and testing all the models (with the exception of gpt-4o-mini), High Performance Computing (HPC) systems provided by William and Mary were utilized. These systems are accessible to W&M students and faculty and provide access to [GPUs for data intense projects](https://www.wm.edu/offices/it/services/researchcomputing/atwm/).
 
-## Results
+## Evaluation results
 
 ### [GPE](data/gold_standards/GPE_2024_05_21T134100Z.jsonl)s
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
