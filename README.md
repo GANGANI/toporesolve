@@ -687,7 +687,7 @@ The fine-tuned models (Llama2-7B-LoRA-Toponym-Resolution, Llama2-13B-LoRA-Topony
 
 ### 10. Llama2-7B-LoRA-Toponym-Resolution
 
-This model uses **meta-llama/Llama-2-7b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card] (https://huggingface.co/xukehu/Llama2-7B-LoRA-Toponym-Resolution).
+This model uses **meta-llama/Llama-2-7b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card](https://huggingface.co/xukehu/Llama2-7B-LoRA-Toponym-Resolution).
 
 - Start by loading the model and saving it
 ```py
@@ -715,7 +715,7 @@ python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights
 
 ### 11. Llama2-13B-LoRA-Toponym-Resolution
 
-This model uses **Llama-2-13b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card] (https://huggingface.co/xukehu/Llama2-13B-LoRA-Toponym-Resolution).
+This model uses **Llama-2-13b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card](https://huggingface.co/xukehu/Llama2-13B-LoRA-Toponym-Resolution).
 
 Following same steps as before:
 - Start by loading the model and saving it
@@ -744,7 +744,7 @@ python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights
 
 ### 12. Mistral-7B-LoRA-Toponym-Resolution
 
-This model uses **mistral-7B-v0.1-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card] (https://huggingface.co/xukehu/Mistral-7B-LoRA-Toponym-Resolution).
+This model uses **mistral-7B-v0.1-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card](https://huggingface.co/xukehu/Mistral-7B-LoRA-Toponym-Resolution).
 
 Following the same steps as before:
 - Start by loading the model and saving it
