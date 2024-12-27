@@ -1,76 +1,69 @@
-# Entity Disambiguation in News Texts using Dedicated Geoparsers and LLMs
+# Toponym disambiguation in news text using traditional geoparsers and LLMs
 
+[Location matters, and not just for real estate](https://doi.org/10.1080/13658816.2017.1368523). Identifying the names of places (*toponyms*) is essential to processing news text, but place names in news text are notoriously ambiguous. For example, the toponym *Paris* could refer to Paris, France or Paris, Texas, or Paris, Virginia, [etc](https://en.wikipedia.org/wiki/Paris_(disambiguation)). Toponym disambiguation or toponym resolution is defined as resolving toponyms to their precise locations (geo-coordinates).
+
+Traditional geoparsers like [Mordecai3](https://github.com/ahalterman/mordecai3), [Cliff Clavin](https://github.com/mediacloud/cliff-annotator), [the Edinburgh Parser](https://www.ltg.ed.ac.uk/software/geoparser/), and [DBpedia Spotlight](https://github.com/dbpedia-spotlight/dbpedia-spotlight-model) use rule-based methods, knowledge bases, and statistical models for toponym disambiguation. While effective with domain-specific datasets, these tools often struggle with understanding complex contexts. Large Language Models (LLMs) like GPT and Llama excel at contextual reasoning, and often outperform traditional geoparsers in accuracy and flexibility. However, their high computational demands (powerful GPUs and optimized setups) limit their practicality.
+
+What follows is an exploration of various toponym disambiguation tools (traditional geoparsers and general-purpose/fine-tuned LLMs). Specifically, we explore how to install and use them, and in some cases evaluate their performance.
+
+**TL;DR**
+
+For [traditional geoparsers](https://arxiv.org/pdf/2207.01683), our results show that geopolitical (`GPE`) entities (e.g., countries, states, counties, cities) are the easiest to disambiguate, next are location (`LOC`) entities (e.g., Non-GPE locations, mountain ranges, bodies of water), and then facility (`FAC`) entities (e.g., Buildings, airports, highways, bridges, etc.). Cliff Clavin out-performed other geoparsers for both disambiguating GPEs and LOCs. DBPedia spotlight was the best-performing geoparser for FACs.
+
+LLMs out-performed traditional geoparsers, with gpt-4o-mini outperforming other general-purpose and fine-tuned LLMs. Gpt-4o-mini API was fast and efficient and cost less $ use.
 
 ## Table of Contents
 
-<details>
-  <summary><a href="#abstract">Abstract</a></summary>
-</details>
+* [Using Windows? Read this.](#using-windows-read-this)
 
-<details>
-  <summary><a href="#using-windows-read-this">Using Windows? Read this.</a></summary>
-</details>
+* [Datasets (Gold standards)](#datasets-gold-standards)
 
-<details>
-  <summary><a href="#datasets-gold-standards">Datasets (Gold standards)</a></summary>
-</details>
-
-<details>
-  <summary>State-of-the-Art Geoparsers</summary>
+* <details>
+  <summary>Traditional Geoparsers</summary>
   <ul>
-    <li><a href="#gate-yodie">GATE YODIE</a></li>
-    <li><a href="#geoparsepy">Geoparsepy</a></li>
-    <li><a href="#cliff-clavin">Cliff-Clavin</a></li>
-    <li><a href="#dbpedia-spotlight">DBpedia Spotlight</a></li>
-    <li><a href="#edinburgh-geoparser">Edinburgh Geoparser</a></li>
-    <li><a href="#mordecai">Mordecai</a></li>
-    <li><a href="#evaluation">Evaluation</a></li>
+    <li><a href="#1-gate-yodie">GATE YODIE</a></li>
+    <li><a href="#2-geoparsepy-using-windows-terminal-pipenv">Geoparsepy</a></li>
+    <li><a href="#3-cliff-clavin-see-also">Cliff-Clavin</a></li>
+    <li><a href="#4-dbpedia-spotlight">DBpedia Spotlight</a></li>
+    <li><a href="#5-edinburgh-geoparser">Edinburgh Geoparser</a></li>
+    <li><a href="#6-mordecai3">Mordecai</a></li>
+    <li><a href="#evaluation-of-traditional-geoparsers">Evaluation</a></li>
   </ul>
 </details>
-<details>
+
+* <details>
   <summary>Large Language Models</summary>
   <ul>
-    <li><a href="#regular-non-finetuned-models">Non-Finetuned Models</a>
+    <li><a href="#general-purpose-non-finetuned-llms">General-purpose (non-finetuned) LLMs</a>
       <ul>
-        <li><a href="#gpt4o-mini">GPT4o-mini</a></li>
-        <li><a href="#llama2-7b">Llama2-7B</a></li>
-        <li><a href="#phi3-mini-4k">Phi3-mini-4k</a></li>
+        <li><a href="#7-gpt-4o-mini">GPT4o-mini</a></li>
+        <li><a href="#8-llama2-7b">Llama2-7B</a></li>
+        <li><a href="#9-phi3-mini-4k">Phi3-mini-4k</a></li>
       </ul>
     </li>
-    <li><a href="#finetuned-models">Finetuned Models</a>
+    <li><a href="#fine-tuned-models">Finetuned Models</a>
       <ul>
-        <li><a href="#llama2-7b-lora-toponym-resolution">Llama2-7B</a></li>
-        <li><a href="#mistral-7b-lora-toponym-resolution">Mistral-7B</a></li>
-        <li><a href="#llama2-13b-lora-toponym-resolution">Llama2-13B</a></li>
+        <li><a href="#10-llama2-7b-lora-toponym-resolution">Llama2-7B-LoRA-Toponym-Resolution</a></li>
+        <li><a href="#11-llama2-13b-lora-toponym-resolution">Llama2-13B-LoRA-Toponym-Resolution</a></li>
+        <li><a href="#12-mistral-7b-lora-toponym-resolution">Mistral-7B-LoRA-Toponym-Resolution</a></li>
       </ul>
     </li>
-    <li><a href="#results">LLMs Evaluation</a></li>
+    <li><a href="#evaluation-results">LLMs Evaluation</a></li>
   </ul>
 </details>
 
-<details>
-  <summary><a href="#acknowledgements">Acknowledgements</a></summary>
-</details>
-
-
-# Abstract
-
-Entity disambiguation, the process of resolving ambiguities in text to link entities to unique identifiers (e.g., geocoordinates for place names), is a key challenge in natural language processing (NLP). Tools like Mordecai3, Cliff Clavin, the Edinburgh Parser, and DBpedia Spotlight use rule-based methods, knowledge bases, and statistical models. While effective with domain-specific datasets, these tools often struggle with understanding complex contexts.
-
-Advances in AI, particularly Large Language Models (LLMs) like GPT and Llama, are transforming this field. LLMs excel at contextual reasoning, often outperforming traditional tools in accuracy and flexibility. However, their high computational demands, requiring powerful GPUs and optimized setups, limit their practicality for real-time applications.
-
-This project evaluates LLMs for disambiguating toponyms in local news texts, comparing their performance with established tools. It highlights the potential of LLMs to set new benchmarks in entity disambiguation and provides practical insights for researchers and practitioners.
+* [Acknowledgements](#acknowledgements)
 
 # Using Windows? Read this.
 
-If you use a Windows 11 PC, you might find PowerShell challenging for testing tools, especially since many were developed with Linux or Mac users in mind. To make things easier, here’s what I recommend for Windows users:
+Most of the tools were developed with Unix (i.e., Linux, Mac) users in mind. We recommend the following to simplify usage for Windows (Windows 11 PC with PowerShell) users:
 
 1. Install Windows Subsystem for Linux (WSL). Open PowerShell as an Administrator and run the following command:
 ```powershell
 wsl --install
 ```
 
-2. Install a Linux distribution: Installing WSL often comes with Ubuntu pre-installed. If it doesn’t, open the Microsoft Store app and search for "WSL." You’ll find several Linux distributions available. Recommend Ubuntu (widely used, great for beginners). Alternative: Debian or other distributions of your choice.
+2. Install a Linux distribution: Installing WSL often comes with Ubuntu pre-installed. If it doesn’t, open the Microsoft Store app and search for "WSL." You’ll find several Linux distributions available. We recommend Ubuntu, alternatively, Debian or other distributions of your choice.
 
 3. Set up the Linux distribution: After installation, open the Linux distribution (e.g., Ubuntu) and set it up by creating a username and password. Make sure to save or memorize these credentials.
 
@@ -78,47 +71,58 @@ wsl --install
 
 5. To work with files on your Windows filesystem via the Ubuntu terminal, navigate to the **/mnt/c** directory:
 ```bash
-cd /mnt/c/Users/YourWindowsUsername/WindowsFolder/filename.txt
+cd /mnt/c/Users/<Your_Windows_Username>/<Windows_Folder>/filename.txt
 ```
-Replace `YourWindowsUsername` and `WindowsFolder` with your actual username and folder path.
+Replace `<Your_Windows_Username>` and `<Windows_Folder>` with your actual username and folder path, respectively.
 
 All the tools and commands below were run using Ubuntu terminal via WSL, except when explicitly stated otherwise.
 
-# Datasets (Gold standards)
-[data](data/gold_standards)
+# [Datasets (Gold standards)](data/gold_standards)
 
-This directory contains three datasets, each focusing on a specific entity type: GPE (Geopolitical Entities), LOC (Locations), and FAC (Facilities). Ambiguous toponyms were manually geocoded using Google, GeoNames, or OpenStreetMap. These datasets aim to provide geolocation information and contextual usage of various entities.
+We created three [gold-standard datasets](data/gold_standards) files for three classes of ambiguous toponyms --- `GPE`s, `LOC`s, and `FAC`s --- to evaluate the toponym disambiguation tools. Each file contains 102 randomly selected JSON objects of ambiguous toponyms and their corresponding disambiguated forms - geo-coordinates. To maximize diversity, we randomly extracted two toponyms from local news articles from the state.
 
-## Overview of Files
-
-- Total Datasets: 3
-- File Naming Convention: *.TOPO_2024_05_21T134100Z.jsonl. TOPO Indicates the entity type (GPE, LOC, or FAC).
-- Structure: Each file contains 102 JSON objects, with 2 objects from each U.S. state, randomly scraped from local news websites.
+Specifically, the `GPE` gold-standard file, [GPE_2024_05_21T134100Z.jsonl](https://github.com/wm-newslab/toponym-disambiguation/blob/nwala_edits/data/gold_standards/GPE_2024_05_21T134100Z.jsonl), consists of the geo-coordinates of ambiguous `GPE`s. Similarly, the `LOC` gold-standard file, [LOC_2024_05_21T134100Z.jsonl](https://github.com/wm-newslab/toponym-disambiguation/blob/nwala_edits/data/gold_standards/LOC_2024_05_21T134100Z.jsonl), contains the geo-coordinates of ambiguous `LOC`s, and [FAC_2024_05_21T134100Z.jsonl](https://github.com/wm-newslab/toponym-disambiguation/blob/nwala_edits/data/gold_standards/FAC_2024_05_21T134100Z.jsonl) - geo-coordinates of ambiguous `FAC`s. The ambiguous toponyms were manually disambiguated using Google search, GeoNames, or OpenStreetMap.
 
 ## Data Structure
-Each line (JSON object) contains the following fields:
-- `lat_long`: Latitude and longitude values of the geographic location.
-- `entity`: The name of the geographic entity (e.g., "Newfane" or "Pennsylvania").
-- `entity_label`: The entity type (e.g., "GPE" for Geopolitical Entity).
+Each line of a gold-standard file contains a JSON object with the following fields:
+- `lat_long`: Latitude and longitude values of the ambiguous toponym (`entity`).
+- `entity`: Ambiguous toponym (e.g., "Newfane" or "Pennsylvania").
+- `entity_label`: The toponym class (e.g., `GPE`, `LOC`, `FAC`).
 - `context`:
-  - `sents`: Sentences containing mentions of the entity, providing context.
-
-Additional metadata:
+  - `sents`: Sentences containing mentions of the toponym, providing context.
 - `link`: URL of the source material.
 - `title`: Title of the source document.
 - `published`: Publication date of the source material.
 - `link_extracted_from`: Where the link was sourced (e.g., a news website).
 - `media_dets`: Details about the media outlet (e.g., name, type).
 
+## Evaluation Process
 
-# State-of-the-Art Geoparsers
+For a single toponym, e.g., `Williamsburg`, a single evaluation for a given geoparser involved passing the toponym (and any required information) to the geoparser and then comparing the geo-coordinates it returns to the correct geo-coordinate within the gold-standard.
 
-## 1. GATE YODIE
-https://cloud.gate.ac.uk/info/help/online-api.html
+1. **Evaluation function**: The core evaluation function takes two arguments: a path to the gold standard dataset file, and a `match_proximity_radius_miles` parameter with a default value of 25 miles. If the geocoordinates produced by a toponym disambiguation tool is within 25 miles of the reference (gold-standard) coordinate, it is counted as a **True** match, else **False**. If the toponym disambiguation tools doesn't return a coordinate, it counted as a **null**. 
 
-- Create an account at https://cloud.gate.ac.uk/login/full
+Note: For GPEs such as states, countries, continents, etc, the `match_proximity_radius_miles` radius is not used. Instead, the entire geographical polygon of the state or country was used as the radius. This is because any point within the state counts as the state, even if it is more than 25 miles away from the reference (gold-standard) coordinate.
+
+2. **Reading and processing data**: The script reads the gold-standard files line by line. Each line corresponding to a toponym is processed as follows:
+    - Extract toponym (e.g., `Williamsburg`) and actual (gold-standard) geo-coordinate (`37.271133, -76.716614`) and context sentences.
+    - Issue toponym to toponym disambiguation tool
+    - Compare actual geo-coordinates with the coordinate returned by the tool
+    - Update `TP: True Positive`, `FP: False Positive`, and `FN: False Negative` counts. (No `TN: True Negative`) 
+
+3. **Result Analysis**: Use `TP`, `FP`, and `TN` counts to compute evaluation metrics (Precision, Recall, F1)
+
+To run our [evaluation](eval/evaluation.py), you'd have to install: [geopy](https://geopy.readthedocs.io/en/stable/#installation), [shapely](https://shapely.readthedocs.io/en/stable/installation.html), and [NwalaTextUtils](https://github.com/oduwsdl/NwalaTextUtils).
+
+# Traditional Geoparsers
+
+## 1. [GATE YODIE](https://cloud.gate.ac.uk/info/help/online-api.html)
+
+### Installation:
+- Create an account at [https://cloud.gate.ac.uk/login/full](https://cloud.gate.ac.uk/login/full)
 - Request an API key
-- Once you have the API key ID and password, make a HTTPS Header request to the API endpoint: https://cloud-api.gate.ac.uk/process/yodie-en
+- Once you have the API key ID and password, make an HTTP POST request to the API endpoint: [https://cloud-api.gate.ac.uk/process/yodie-en](https://cloud-api.gate.ac.uk/process/yodie-en)
+- **Note:** You can make 800 free header requests a day.
 
 First convert your API ID and password to base64:
 
@@ -126,11 +130,14 @@ First convert your API ID and password to base64:
 $ echo -n "api-id" | base64
 ```
 
-Example header request:
+Example POST request, with content of `example.txt` set to `"The University of Oklahoma has received a  million gift from Delta Dental of Oklahoma and Delta Dental of Oklahoma Foundation to the OU College of Dentistry to fund a dental clinic on the OU-Tulsa campus."`:
 ```bash
 curl -X POST -H "Authorization: Basic base64-api-id" -H "Content-Type: text/plain" -H "Accept: application/json" -m 60 --data-binary @example.txt https://cloud-api.gate.ac.uk/process/yodie-en -o output.json
 ```
-Programmatically, you can use the python `requests` library to do this:
+
+<details>
+    <summary>Programmatically, you may also use python's [requests](https://pypi.org/project/requests/) library:</summary>
+
 ```py
 import requests
 
@@ -140,10 +147,13 @@ headers = {
     "Content-Type": "text/plain",
     "Accept": "application/json"
 }
-
 requests.post(url, headers=headers, data={text}, timeout=60)
 ```
-Output:
+</details>
+
+<details>
+    <summary>Output:</summary>
+
 ```json
 {
     "text": "The University of Oklahoma has received a  million gift from Delta Dental of Oklahoma and Delta Dental of Oklahoma Foundation to the OU College of Dentistry to fund a dental clinic on the OU-Tulsa campus.",
@@ -173,17 +183,16 @@ Output:
     }
 }
 ```
-Dbpedia entities are returned so further parsing is required to get the coordinates.
+</details>
 
-**Note:** You can make 800 free header requests a day.
+Dbpedia entities are returned so further parsing is required to get the coordinates:
+`result = get_dbpedia_coords( dbpedia["entities"]["Mention"][0] )`. See [gate.py](models/state-of-the-art/gate.py) for complete code using Gate Yodie on the datasets.
 
-Complete code using Gate Yodie on the datasets can be found [here](models/state-of-the-art/gate.py)
-
-## 2. Geoparsepy (using windows terminal pipenv)
-https://github.com/stuartemiddleton/geoparsepy
+## 2. [Geoparsepy (using windows terminal pipenv)](https://github.com/stuartemiddleton/geoparsepy)
 
 ### Installation:
-- Download Postgre: when you install, you will be asked to give a password, take note of this, also you will be asked to select a port: choose  5432 https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+
+- [Download PostgreSQL](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads): when you install, you will be asked to give a password, take note of this, also you will be asked to select a port: choose `5432`
 - Install `requests` and the `geoparsepy` library
 
 ```bash
@@ -191,9 +200,9 @@ pip install requests
 pip install geoparsepy
 ```
 
-Installing the library should also automatically install psycopg2>=2.8 nltk>=3.4 numpy>=1.18 shapely>=1.6 setuptools>=46 soton-corenlppy>=1.0 
-but if not, install those also using pip.
-Download NLTK corpora:
+Installing these should also automatically install `psycopg2>=2.8`, `nltk>=3.4`, `numpy>=1.18`, `shapely>=1.6`, `setuptools>=46`, `soton-corenlppy>=1.0`, but if not, install them.
+
+- Download NLTK corpora:
 
 ```python
 import nltk
@@ -202,8 +211,7 @@ nltk.download('stopwords')
 nltk.download('wordnet')
 ```
 
-- Download pre-processed UTF-8 encoded SQL table dumps:
-    - download zip file from Google drive: https://drive.google.com/file/d/1xyCjQox6gCoN8e0upHHyeMLV-uLirthS/view?usp=sharing
+- Download [pre-processed UTF-8 encoded SQL table dumps](https://drive.google.com/file/d/1xyCjQox6gCoN8e0upHHyeMLV-uLirthS/view?usp=sharing):
 - Then unzip the files manually or by running the following in bash
 ```bash
 unzip geoparsepy_preprocessed_tables.tar.zip
@@ -220,7 +228,7 @@ CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
 CREATE EXTENSION IF NOT EXISTS hstore;
 ```
 
-Alternatively, open pgAdmin, click Databases and then Create. Put the database name and save. While still in the app, select your database, click the psql tool icon and run the create extension commands above.
+Alternatively, open pgAdmin, click Databases and then Create. Input the database name and save. While still in the app, select your database, click the psql tool icon and run the create extension commands above.
 
 - Import the precomputed database tables for global cities and places. In powershell, navigate to the folder where your SQL tables are saved and run the following:
 ```powershell
@@ -230,18 +238,18 @@ Alternatively, open pgAdmin, click Databases and then Create. Put the database n
 & 'C:\Program Files\PostgreSQL\16\bin\psql' -U postgres -d openstreetmap -f europe_places.sql
 ```
 
-Ran the example code from the github repo and got the same results. Note in example.py, there’s a line: 
+You may run [the example code](https://github.com/stuartemiddleton/geoparsepy/blob/master/example.py) and attempt to get the same results. Note that the example contains a line: 
 ```py
 databaseHandle = soton_corenlppy
-                .PostgresqlHandler
-                .PostgresqlHandler('postgres', 'password', 
-                                 'localhost', 5432, 
-                                 'openstreetmap', 600)
+    .PostgresqlHandler
+    .PostgresqlHandler('postgres', 'password', 
+                     'localhost', 5432, 
+                     'openstreetmap', 600)
 ```
 
-The 2nd string is password, so change it to whatever password you chose when downloading PostgreSQL.
+Ensure to replace the `password` string with whatever password you chose when downloading PostgreSQL.
 
-Note: Geoparsepy returns OSM IDs, not coordinates, so there is need to convert these. The Overpass API performs this process.
+Note: Geoparsepy returns OSM IDs, not coordinates. The Overpass API may be used to convert OSM IDs to coordinates:
 ```py
 import requests 
 
@@ -254,32 +262,35 @@ overpass_query = f"""
 requests.get(overpass_url, params={'data': overpass_query})
 ```
 
-Complete code using Geoparsepy on the datasets can be found [here](models/state-of-the-art/geopaserpy.py)
+See [geopaserpy.py](models/state-of-the-art/geopaserpy.py) for complete code using Geoparsepy on the datasets.
 
-## 3. Cliff-Clavin
-https://github.com/mediacloud/cliff-annotator
-https://pypi.org/project/mediacloud-cliff/
+## 3. [Cliff-Clavin](https://github.com/mediacloud/cliff-annotator) ([see also](https://pypi.org/project/mediacloud-cliff/))
 
-- Make sure Docker Desktop is running
-- In Bash, run this:
+**Using via Cliff server:**
+- Ensure to run Docker Desktop
+- In Bash, run the cliff server:
 ```bash
 docker run -p 8080:8080 -m 8G --platform=linux/amd64 -d rahulbot/cliff-clavin:2.6.1
 ```
 - Run `'http://localhost:8080/cliff-2.6.1/parse/text?q={text_for_parsing}`
 
-To use Cliff programmatically, install it using pip:
+**Using Cliff programmatically:**
 
+First, install,
 ```bash
 pip install mediacloud-cliff
 ```
-Then instantiate and use it like this:
 
+Next:
 ```py
 from cliff.api import Cliff
 my_cliff = Cliff('http://myserver.com:8080')
 my_cliff.parse_text("This is about Einstien at the IIT in New Delhi.")
 ```
-Output:
+
+<details>
+    <summary>Output:</summary>
+
 ```json
 {
   "results": {
@@ -353,20 +364,24 @@ Output:
   "version": "2.6.0"
 }
 ```
-Complete code using Cliff Clavin on the datasets can be found [here](models/state-of-the-art/cliff.py)
+</details>
 
-## 4. DBpedia Spotlight
-https://github.com/dbpedia-spotlight/dbpedia-spotlight-model
+See [cliff.py](models/state-of-the-art/cliff.py) for complete code.
+
+## 4. [DBpedia Spotlight](https://github.com/dbpedia-spotlight/dbpedia-spotlight-model)
 
 - Go to Bash terminal and run curl command 
-- Eg: 
+- E.g.,: 
 ```bash
 curl https://api.dbpedia-spotlight.org/en/annotate  \
   --data-urlencode "text=The University of Oklahoma has received a $2 million gift from Delta Dental of Oklahoma and Delta Dental of Oklahoma Foundation to the OU College of Dentistry to fund a dental clinic on the OU-Tulsa campus." \
   --data "confidence=0.35" \
   -H "Accept: application/json"
 ```
-Output:
+
+<details>
+    <summary>Output:</summary>
+
 ```json
 {
     "@text": "The University of Oklahoma has received a  million gift from Delta Dental of Oklahoma and Delta Dental of Oklahoma Foundation to the OU College of Dentistry to fund a dental clinic on the OU-Tulsa campus.",
@@ -406,22 +421,24 @@ Output:
     ]
 }
 ```
-The same outcome will be gotten by using the `requests` library to send a POST request.
+</details>
 
-Complete code using Dbpedia Spotlight on the datasets can be found [here](models/state-of-the-art/dbpedia.py)
+The same outcome can be gotten by sending an HTTP POST [request via python](models/state-of-the-art/dbpedia.py).
 
-## 5. Edinburgh Geoparser
-https://www.ltg.ed.ac.uk/software/geoparser/
+## 5. [Edinburgh Geoparser](https://www.ltg.ed.ac.uk/software/geoparser/)
 
 ### Installation
-- Install networkx, xmltodict, bs4
-- Download geoparser-1.3.tar.gz from https://www.ltg.ed.ac.uk/software/geoparser/ and extract
-- Navigate to the Script Directory in terminal
-- Run an example text file
+- Install [networkx](https://networkx.org/documentation/stable/install.html), [xmltodict](https://pypi.org/project/xmltodict/), [BeautifulSoup4](https://pypi.org/project/beautifulsoup4/)
+- Download and extract [geoparser-1.3.tar.gz](https://www.ltg.ed.ac.uk/software/geoparser/)
+- Navigate to the `Script` Directory in terminal
+- Process news text from a file example.txt
 ```bash
 cat ../in/example.txt | ./run -t plain -g geonames -o ../out example
 ```
-Command options:
+
+<details>
+    <summary>Run command options:</summary>
+
 ```
 Input type
 -t   plain          (plain text)
@@ -443,14 +460,13 @@ Gazetteer options
 
 -l lat long radius score (use this if you know what geographical area your ambiguous toponym is likely to be in)
 ```
+</details>
 
-Complete code using Edinburgh Geoparser on the datasets can be found [here](models/state-of-the-art/edinburgh.py).
+See [edinburgh.py](models/state-of-the-art/edinburgh.py) for more details on using the Edinburgh Geoparser.
 
-## 6. Mordecai3
-https://github.com/ahalterman/mordecai3
+## 6. [Mordecai3](https://github.com/ahalterman/mordecai3)
 
-- Install these: mordecai, wget
-
+- Install these
 ```bash 
 $ pip install textacy mordecai3 unzip
 ```
@@ -461,22 +477,21 @@ pip install spacy==3.6.1
 pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_trf-3.6.1/en_core_web_trf-3.6.1.tar.gz
 ```
 
-Create a Geonames index running locally in Elasticsearch container (make sure Docker Desktop is open, and resources integration for Ubuntu is selected).
+- Create a Geonames index running locally in Elasticsearch container (make sure Docker Desktop is open, and resources integration for Ubuntu is selected).
 ```bash
 $ git clone https://github.com/openeventdata/es-geonames.git
 $ cd es-geonames
 $ bash create_index.sh
 ```
-Make sure this completes successfully. 
-
-To test, open python in your terminal (ubuntu) and run the below:
-
+Make sure this completes successfully. To test, open python in your terminal (ubuntu) and run the below:
 ```py
 >>> from mordecai3 import Geoparser
 >>> geo = Geoparser()
 >>> geo.geoparse_doc("I visited Alexanderplatz in Berlin.")
 ```
-Output:
+
+<details>
+    <summary>Output:</summary>
 
 ```json
 {"doc_text": "I visited Alexanderplatz in Berlin.", "event_location_raw": "", "geolocated_ents": [
@@ -539,18 +554,23 @@ Output:
     ]
 }
 ```
+</details>
 
-Once built, the index can be started like this:
+Once built, the index can be started by running:
 ```bash
 docker run -d -p 127.0.0.1:9200:9200 -e "discovery.type=single-node" 
 -v $PWD/geonames_index/:/usr/share/elasticsearch/data elasticsearch:7.10.1
 ```
 
-Complete code using Mordecai3 on the datasets can be found [here](models/state-of-the-art/mordecai.py)
+See [mordecai.py](models/state-of-the-art/mordecai.py) for more details on running Mordecai.
 
-## State of the Art Evaluation
+## Evaluation of traditional geoparsers
 
-### GPE (Gold standard: [GPE_2024_05_21T134100Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
+Recall that we created [three gold-standard files](#datasets-gold-standards) corresponding to the toponym classes (`GPE`s, `LOC`s, and `FAC`s) to [evaluate](#evaluation-process) the traditional geoparsers. For a single toponym, e.g., `Williamsburg`, a single evaluation for a given geoparser involved passing the toponym (and any required information) to the geoparser and then comparing the geo-coordinates it returns to the correct geo-coordinate within the gold-standard.
+
+Here are the results:
+
+### [GPE](data/gold_standards/GPE_2024_05_21T134100Z.jsonl)s
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
 |Precision| **0.8182** | 0.7011 | 0.5543 | 0.7526 | 0.7544 | 0.6867
@@ -558,7 +578,7 @@ Complete code using Mordecai3 on the datasets can be found [here](models/state-o
 |F1-Score| 0.7629 | 0.7484 | 0.6668 | **0.834**| 0.5928 | 0.7170
 
 
-### LOC (Gold standard: [LOC_2024_05_21T134100Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
+### [LOC](data/gold_standards/LOC_2024_05_21T134100Z.jsonl)s
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
 |Precision| 0.4839 | 0.4286 | 0.253 | **0.5542** | 0.5098 | 0.4725
@@ -566,34 +586,32 @@ Complete code using Mordecai3 on the datasets can be found [here](models/state-o
 |F1-Score| 0.4545 | 0.4544 | 0.3414 | **0.6216** | 0.4064 | 0.5930
 
 
-### FAC (Gold standard: [FAC_2024_05_21T134100Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
+### [FAC](data/gold_standards/FAC_2024_05_21T134100Z.jsonl)s
 || Mordecai3 | Edinburgh Geoparser | Geoparsepy | Cliff Clavin | Gate Yodie | Dbpedia Spotlight
 |---|---|---|---|---|---|---|
 |Precision| 0.3611 | 0.3750 | 0.2262 | 0.4857 | **0.5818** | 0.4271
 |Recall| 0.4643 | 0.4737 | 0.5135 | 0.5152 | 0.4051 | **0.8723**|
 |F1-Score| 0.4064 | 0.4184 | 0.3140 | 0.5 | 0.4778 | **0.5734**|
 
-To run the evaluation code you would need the following additional modules: geopy, shapely, NwalaTextUtils
-
 # Large Language Models
 
-A total of 5 LLMs were tested in various ways. GPT-4o-mini was tested using the API for a fee. Others such as Llama2, Mistral, etc are opensource and were tested via HuggingFace, some of which were fine-tuned prior to testing. 
+We evaluated 1 proprietary general-purpose LLM (GPT-4o-mini), 2 open-source general-purpose ones (Llama2-7B, Phi3-mini-4k), and 3 open-source LLMs (Llama2-7B-LoRA-Toponym-Resolution, Llama2-13B-LoRA-Toponym-Resolution, and Mistral-7B-LoRA-Toponym-Resolution) [fined tuned specifically for the toponym disambiguation](https://doi.org/10.1080/13658816.2024.2405182) task.
 
-## Regular (Non-Finetuned) Models
+## General-purpose (non-finetuned) LLMs
 
-## gpt-4o-mini
+## 7. gpt-4o-mini
 
-This GPT model is a more affordable and faster option than **gpt-4o** (which is high-level and used for complex tasks, and hence, more expensive), perfect for lightweight tasks. It costs $0.150 per 1M input tokens as compared to gpt-4o's $2.50 per 1M input tokens. See https://openai.com/api/pricing/ for details.
+This GPT model is a more affordable and faster option than **gpt-4o** (which is for more complex tasks, and hence, more expensive), and is perfect for lightweight tasks. It costs $0.150 per 1M input tokens as compared to gpt-4o's $2.50 per 1M input tokens. See https://openai.com/api/pricing/ for details.
 
 ### Requirements
 - Create an account on OpenAI's development platform (https://platform.openai.com/)
-- Go to Settings. Under Organization, select Billing. There click Add payment details.
+- Go to Settings. Under Organization, select Billing. Click Add payment details.
 - Fill in necessary info (such as payment information, etc)
-- Select credit limit (has upper limit of 100 dollars), and if selecting auto-renewal, choose when to do so and amount to renew with.
-- You can perform tasks in the user iterface, or you can create an API key (with necessary permissions) [here](https://platform.openai.com/api-keys) to use in code.
+- Select credit limit (upper limit of $100), and set auto-renewal options. (We didn't use auto-renewal).
+- You can perform tasks on the user interface, or you can create an API key (with necessary permissions) [here](https://platform.openai.com/api-keys) to use within your code.
 - You can view your usage details, how much credit you have left, etc on the [dashboard](https://platform.openai.com/usage).
 
-### Usage (Python)
+### Python usage of gpt-4o-mini
 
 ```py
 client = OpenAI(api_key = 'api-key') # replace with your api key
@@ -607,11 +625,11 @@ response = client.chat.completions.create(
 )
 ```
 
-Complete code using gpt4o-mini to perform toponym disambiguation on the datasets can be found [here](models/gpt4.py)
+See [gpt-4o-mini.py](gpt-4o-mini.py) for complete code using the gpt4o-mini to perform toponym disambiguation on the gold-standard datasets.
 
 *Note: Using this API is really fast and efficient. Takes seconds to a few minutes for hundreds of data. Good for those who want quick results and don't mind the cost.*
 
-## Llama2-7B 
+## 8. Llama2-7B
 
 This model was developed by Meta. It can be accessed via HuggingFace in 2 ways:
 
@@ -635,13 +653,14 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
 model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
 ```
-Complete code using Llama2-7B to perform toponym disambiguation on the datasets can be found [here](models/llama2.py).
 
-* *Note: You need to have a HuggingFace account, access to the model, and an access token. You can request access from the model [card](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf). And you can create an access token with needed permissions here: https://huggingface.co/settings/tokens. This functions similarly to an API key. You can use one access token for as many models you want.*
+See [llama2-7b.py](models/llama2-7b.py) for complete code using Llama2-7B for toponym disambiguation on the gold-standard datasets.
 
-## Phi3-mini-4k
+* *Note: You need to have a HuggingFace account, access to the model, and an access token. You can request access from the [model card](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf). And you can [create an access token]( https://huggingface.co/settings/tokens) with the needed permissions. This functions similarly to an API key. You can use one access token for as many models you want.*
 
-This model was developed by Microsoft. Similar to Llama2, it can be accessed via HuggingFace. View the model details on the [card](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct).
+## 9. Phi3-mini-4k
+
+This model was developed by Microsoft. Similar to Llama2-7b, it can be accessed via HuggingFace. View the model details on the [card](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct).
 
 ```py
 # Use a pipeline as a high-level helper
@@ -660,16 +679,15 @@ tokenizer = AutoTokenizer.from_pretrained("microsoft/Phi-3-mini-4k-instruct", tr
 model = AutoModelForCausalLM.from_pretrained("microsoft/Phi-3-mini-4k-instruct", trust_remote_code=True)
 ```
 
-Complete code using Llama2-7B to perform toponym disambiguation on the datasets can be found [here](models/phi3.py).
+See [phi3-mini-4k.py](models/phi3-mini-4k.py) for complete code using the Phi3-mini-4k to perform toponym disambiguation on the gold-standard.
 
+## Fine-tuned models
 
-## Finetuned Models
+The fine-tuned models (Llama2-7B-LoRA-Toponym-Resolution, Llama2-13B-LoRA-Toponym-Resolution, and Mistral-7B-LoRA-Toponym-Resolution) were sourced from [https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md](https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md). The [authors](https://doi.org/10.1080/13658816.2024.2405182) trained 5 LLMs on comprehensive datasets derived from news articles, tweets, Wikipedia, etc.. Their data, training, testing code, and instructions for running their fine-tuned models are [available online](https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md).
 
-The finetuned models (Llama27b, Llama213b, and Mistral7b) were sourced from https://github.com/uhuohuy/LLM-geocoding/blob/main/README.md. The authors trained 5 LLMs on comprehensive datasets derived from news articles, tweets, Wikipedia, etc. Read the full paper [here](https://www.tandfonline.com/doi/full/10.1080/13658816.2024.2405182). Their data, training and testing code and instrcutions for running them can all be found in the github repo linked above.
+### 10. Llama2-7B-LoRA-Toponym-Resolution
 
-### Llama2-7B-LoRA-Toponym-Resolution
-
-The model uses **meta-llama/Llama-2-7b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the HuggingFace model [card] (https://huggingface.co/xukehu/Llama2-7B-LoRA-Toponym-Resolution).
+This model uses **meta-llama/Llama-2-7b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card](https://huggingface.co/xukehu/Llama2-7B-LoRA-Toponym-Resolution).
 
 - Start by loading the model and saving it
 ```py
@@ -686,7 +704,7 @@ model = PeftModel.from_pretrained(model, "xukehu/Llama2-7B-LoRA-Toponym-Resoluti
 model.save_pretrained("path_of_the_lora_weights")
 ```
 
-- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from the repo in your terminal. Ensure to edit the code to run on your dataset. Depending on the format of your datasets, you may need to make some changes to the code.
+- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from your terminal. Ensure to edit the code to run on your dataset. Depending on the format of your datasets, you may need to modify the code.
 
 ```bash
 $BASE_MODEL="meta-llama/Llama-2-7b-chat-hf"
@@ -695,42 +713,11 @@ $LORA_WEIGHTS="path_of_the_lora_weights"
 python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
 ```
 
-### Mistral-7B-LoRA-Toponym-Resolution
+### 11. Llama2-13B-LoRA-Toponym-Resolution
 
-The model uses **mistral-7B-v0.1-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the HuggingFace model [card] (https://huggingface.co/xukehu/Mistral-7B-LoRA-Toponym-Resolution).
-
-Following same steps as before:
-
-- Start by loading the model and saving it
-```py
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from peft import PeftModel
-
-# Load the base model and tokenizer
-model = AutoModelForCausalLM.from_pretrained("kittn/mistral-7B-v0.1-hf")
-tokenizer = AutoTokenizer.from_pretrained("kittn/mistral-7B-v0.1-hf")
-
-# Load LoRA weights for toponym resolution
-model = PeftModel.from_pretrained(model, "xukehu/Mistral-7B-LoRA-Toponym-Resolution")
-
-model.save_pretrained("path_of_the_lora_weights")
-```
-
-- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from the repo in your terminal. Ensure to edit the code to use the correct model and to run on your dataset. Depending on the format of your datasets, you may need to make some changes to the code.
-
-```bash
-$BASE_MODEL="kittn/mistral-7B-v0.1-hf"
-$LORA_WEIGHTS="path_of_the_lora_weights" 
-
-python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
-```
-
-### Llama2-13B-LoRA-Toponym-Resolution
-
-The model uses **Llama-2-13b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the HuggingFace model [card] (https://huggingface.co/xukehu/Llama2-13B-LoRA-Toponym-Resolution).
+This model uses **Llama-2-13b-chat-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card](https://huggingface.co/xukehu/Llama2-13B-LoRA-Toponym-Resolution).
 
 Following same steps as before:
-
 - Start by loading the model and saving it
 ```py
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -746,7 +733,7 @@ model = PeftModel.from_pretrained(model, "xukehu/Llama2-13B-LoRA-Toponym-Resolut
 model.save_pretrained("path_of_the_lora_weights")
 ```
 
-- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from the repo in your terminal. Ensure to edit the code to use the correct model and to run on your dataset. Depending on the format of your datasets, you may need to make some changes to the code.
+- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from your terminal. Ensure to edit the code to use the correct model and to run on your dataset. Depending on the format of your datasets, you may need to modify the code.
 
 ```bash
 $BASE_MODEL="meta-llama/Llama-2-13b-chat-hf"
@@ -755,48 +742,61 @@ $LORA_WEIGHTS="path_of_the_lora_weights"
 python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
 ```
 
-### Important Note
+### 12. Mistral-7B-LoRA-Toponym-Resolution
 
-Though free to use, loading HuggingFace models take a good amount of time and requires substantial available memory. It is advisable to use GPUs when running the models. For running and testing all the models (with the exception of gpt-4o-mini), High Performance Computing (HPC) systems provided by William and Mary were utilized. These systems are accessible to W&M students and faculty and provide access to GPUs for data intense projects. See https://www.wm.edu/offices/it/services/researchcomputing/atwm/.
+This model uses **mistral-7B-v0.1-hf** as a base model and builds on top of it by training it on geographic entities within texts. See the [HuggingFace model card](https://huggingface.co/xukehu/Mistral-7B-LoRA-Toponym-Resolution).
 
-## Results
+Following the same steps as before:
+- Start by loading the model and saving it
+```py
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
 
-### GPE (Gold standard: [GPE_2024_05_21T134100Z.jsonl](data/gold_standards/GPE_2024_05_21T134100Z.jsonl))
+# Load the base model and tokenizer
+model = AutoModelForCausalLM.from_pretrained("kittn/mistral-7B-v0.1-hf")
+tokenizer = AutoTokenizer.from_pretrained("kittn/mistral-7B-v0.1-hf")
+
+# Load LoRA weights for toponym resolution
+model = PeftModel.from_pretrained(model, "xukehu/Mistral-7B-LoRA-Toponym-Resolution")
+
+model.save_pretrained("path_of_the_lora_weights")
+```
+
+- Run the [**prediction.py**](https://github.com/uhuohuy/LLM-geocoding/blob/main/prediction.py) from your terminal. Ensure to edit the code to use the correct model and to run on your dataset. Depending on the format of your datasets, you may need to modify the code.
+
+```bash
+$BASE_MODEL="kittn/mistral-7B-v0.1-hf"
+$LORA_WEIGHTS="path_of_the_lora_weights" 
+
+python prediction.py --load_8bit False --base_model "$BASE_MODEL" --lora_weights "$LORA_WEIGHTS" 
+```
+
+### Important note
+
+Though free to use, loading HuggingFace models take a good amount of time and requires substantial available memory. It is advisable to use GPUs when running the models. For running and testing all the models (with the exception of gpt-4o-mini), High Performance Computing (HPC) systems provided by William and Mary were utilized. These systems are accessible to W&M students and faculty and provide access to [GPUs for data intense projects](https://www.wm.edu/offices/it/services/researchcomputing/atwm/).
+
+## Evaluation results
+
+### [GPE](data/gold_standards/GPE_2024_05_21T134100Z.jsonl)s
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
 |Precision| **0.902**|0.784|0.765|0.8586|0.85|0.8788
 |Recall| **1.0** |**1.0**|0.949|0.9659 |0.977|0.9667
 |F1-Score| **0.948**|0.879|0.847|0.9096|0.909|0.9188
 
-### LOC (Gold standard: [LOC_2024_05_21T134100Z.jsonl](data/gold_standards/LOC_2024_05_21T134100Z.jsonl))
+### [LOC](data/gold_standards/LOC_2024_05_21T134100Z.jsonl)s
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
 |Precision| **0.7**|0.45|0.495| 0.5281|0.5778|0.5435
 |Recall| **0.972**|0.957|0.870| 0.7833|0.8125|0.8333
 |F1-Score| **0.813**|0.613|0.632| 0.6297|0.6757|0.6577
 
-### FAC (Gold standard: [FAC_2024_05_21T134100Z.jsonl](data/gold_standards/FAC_2024_05_21T134100Z.jsonl))
+### [FAC](data/gold_standards/FAC_2024_05_21T134100Z.jsonl)s
 || gpt-4o-mini|Llama-2-7b-chat-hf|Phi-3-mini-4k-instruct|Llama2-7B-LoRA-Toponym-Resolution|Mistral-7B-LoRA-Toponym-Resolution|Llama2-13B-LoRA-Toponym-Resolution|
 |---|---|---|---|---|---|---|
 |Precision| **0.931**|0.667|0.693| 0.7561|0.8429|0.8
 |Recall| **1.0**|0.957|0.813| 0.7561|0.6484|0.7442
 |F1-Score| **0.964**|0.785|0.748| 0.7561|0.7323|0.7707
-
-
-## Evaluation Process
-
-The evaluation for these tools follow similar formats and share major components.
-
-1. **Evaluation Function**: The core function takes two arguments: a path to the gold standard dataset file which contains the data to be evaluated, and a `match_proximity_radius_miles` parameter with a default value of 25 miles. If the coordinates prodcued by the tool are within 25 miles of the reference coordinates, that is counted as a **True** match, else **False**. If the geoparsing tools doesn't give an output coordinate, that is **null**. 
-
-Note: For GPEs such as states, countries, continents, etc, a distance radius was not used. Instead, the entire geographical polygon of the state or country was used as the radius. This is because any point within the state counts as the state, even if it is more than 25 miles away from the reference coordinates.
-
-2. **Reading and Processing Data**: The script reads the dataset line by line. Each line is parsed into a dictionary. It then processes each place in the file. The process involves:
-    - Extracting reference coordinates and context sentences.
-    - Comparing the reference coordinates with the coordinates produced by the geoparsing tool.
-    - Appending the results, including the reference place and resolved places, to the report json.
-
-3. **Result Analysis**: The script updates the TP, FP, and FN counts based on whether the result matched the reference.
 
 
 # Acknowledgements
