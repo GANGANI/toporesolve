@@ -803,6 +803,6 @@ Though free to use, loading HuggingFace models take a good amount of time and re
 
 # Acknowledgements
 
-This project benefited the survey paper ([Location reference recognition from texts: A survey and comparison](https://doi.org/10.1145/3625819)) of Xuke Hu et al. and their fine-tuned models Llama2-7B, Llama2-13B, and Mistral7B described in [Toponym resolution leveraging lightweight and open-source large language models and geo-knowledge](https://doi.org/10.1080/13658816.2024.2405182).
+This project benefited the survey paper ([Location reference recognition from texts: A survey and comparison](https://doi.org/10.1145/3625819)) of [Xuke Hu](https://scholar.google.de/citations?user=xCj17L0AAAAJ&hl=en) et al. and their fine-tuned models Llama2-7B, Llama2-13B, and Mistral7B described in [Toponym resolution leveraging lightweight and open-source large language models and geo-knowledge](https://doi.org/10.1080/13658816.2024.2405182).
 
 Additionally, this work was supported by the computational resources and technical assistance provided by William & Mary Research Computing. Their resources have been instrumental in achieving the results reported here. Learn more at [Research Computing at W&M](https://www.wm.edu/it/rc)
