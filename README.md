@@ -112,7 +112,9 @@ Note: For GPEs such as states, countries, continents, etc, the `match_proximity_
 
 3. **Result Analysis**: Use `TP`, `FP`, and `TN` counts to compute evaluation metrics (Precision, Recall, F1)
 
-To run our [evaluation](eval/evaluation.py), you'd have to install: [geopy](https://geopy.readthedocs.io/en/stable/#installation), [shapely](https://shapely.readthedocs.io/en/stable/installation.html), and [NwalaTextUtils](https://github.com/oduwsdl/NwalaTextUtils).
+To evaluate the [traditional geoparsers](https://github.com/wm-newslab/toporesolve/tree/main/models/traditional-geoparsers) with our [gold-standard dataset](https://github.com/wm-newslab/toporesolve#datasets-gold-standards), we've provided an evaluation function, [evaluate_place_resolver()](https://github.com/wm-newslab/toporesolve/tree/main/models/traditional-geoparsers) for each geoparser. You may need to install the following to use it: [geopy](https://geopy.readthedocs.io/en/stable/#installation), [shapely](https://shapely.readthedocs.io/en/stable/installation.html), and [NwalaTextUtils](https://github.com/oduwsdl/NwalaTextUtils).
+
+To evaluate the LLMs with our [gold-standard dataset](https://github.com/wm-newslab/toporesolve#datasets-gold-standards), we've provided [evaluate_llm_disambiguation.py](https://github.com/wm-newslab/toporesolve/blob/main/models/llms/evaluate_llm_disambiguation.py).
 
 # Traditional Geoparsers
 
@@ -186,7 +188,7 @@ requests.post(url, headers=headers, data={text}, timeout=60)
 </details>
 
 Dbpedia entities are returned so further parsing is required to get the coordinates:
-`result = get_dbpedia_coords( dbpedia["entities"]["Mention"][0] )`. See [gate.py](models/state-of-the-art/gate.py) for complete code using Gate Yodie on the datasets.
+`result = get_dbpedia_coords( dbpedia["entities"]["Mention"][0] )`. See [gate.py](models/traditional-geoparsers/gate.py) for complete code using Gate Yodie on the datasets.
 
 ## 2. [Geoparsepy (using windows terminal pipenv)](https://github.com/stuartemiddleton/geoparsepy)
 
@@ -262,7 +264,7 @@ overpass_query = f"""
 requests.get(overpass_url, params={'data': overpass_query})
 ```
 
-See [geopaserpy.py](models/state-of-the-art/geopaserpy.py) for complete code using Geoparsepy on the datasets.
+See [geopaserpy.py](models/traditional-geoparsers/geopaserpy.py) for complete code using Geoparsepy on the datasets.
 
 ## 3. [Cliff-Clavin](https://github.com/mediacloud/cliff-annotator) ([see also](https://pypi.org/project/mediacloud-cliff/))
 
@@ -366,7 +368,7 @@ my_cliff.parse_text("This is about Einstien at the IIT in New Delhi.")
 ```
 </details>
 
-See [cliff.py](models/state-of-the-art/cliff.py) for complete code.
+See [cliff.py](models/traditional-geoparsers/cliff.py) for complete code.
 
 ## 4. [DBpedia Spotlight](https://github.com/dbpedia-spotlight/dbpedia-spotlight-model)
 
@@ -423,7 +425,7 @@ curl https://api.dbpedia-spotlight.org/en/annotate  \
 ```
 </details>
 
-The same outcome can be gotten by sending an HTTP POST [request via python](models/state-of-the-art/dbpedia.py).
+The same outcome can be gotten by sending an HTTP POST [request via python](models/traditional-geoparsers/dbpedia.py).
 
 ## 5. [Edinburgh Geoparser](https://www.ltg.ed.ac.uk/software/geoparser/)
 
@@ -462,7 +464,7 @@ Gazetteer options
 ```
 </details>
 
-See [edinburgh.py](models/state-of-the-art/edinburgh.py) for more details on using the Edinburgh Geoparser.
+See [edinburgh.py](models/traditional-geoparsers/edinburgh.py) for more details on using the Edinburgh Geoparser.
 
 ## 6. [Mordecai3](https://github.com/ahalterman/mordecai3)
 
@@ -562,7 +564,7 @@ docker run -d -p 127.0.0.1:9200:9200 -e "discovery.type=single-node"
 -v $PWD/geonames_index/:/usr/share/elasticsearch/data elasticsearch:7.10.1
 ```
 
-See [mordecai.py](models/state-of-the-art/mordecai.py) for more details on running Mordecai.
+See [mordecai.py](models/traditional-geoparsers/mordecai.py) for more details on running Mordecai.
 
 ## Evaluation of traditional geoparsers
 
@@ -801,17 +803,6 @@ Though free to use, loading HuggingFace models take a good amount of time and re
 
 # Acknowledgements
 
-This project benefited from the fine-tuned models Llama2-7B, Llama2-13B, and Mistral7B developed by Hu et al. in their work "Toponym resolution leveraging lightweight and open-source large language models and geo-knowledge" published in the International Journal of Geographical Information Science (2024). For further details, please refer to the following citation:
-
-```bibtex
-@article{hu2024toponym,
-  title={Toponym resolution leveraging lightweight and open-source large language models and geo-knowledge},
-  author={Hu, Xuke and Kersten, Jens and Klan, Friederike and Farzana, Sheikh Mastura},
-  journal={International Journal of Geographical Information Science},
-  pages={1--28},
-  year={2024},
-  publisher={Taylor & Francis}
-}
-```
+This project benefited the survey paper ([Location reference recognition from texts: A survey and comparison](https://doi.org/10.1145/3625819)) of Xuke Hu et al. and their fine-tuned models Llama2-7B, Llama2-13B, and Mistral7B described in [Toponym resolution leveraging lightweight and open-source large language models and geo-knowledge](https://doi.org/10.1080/13658816.2024.2405182).
 
 Additionally, this work was supported by the computational resources and technical assistance provided by William & Mary Research Computing. Their resources have been instrumental in achieving the results reported here. Learn more at [Research Computing at W&M](https://www.wm.edu/it/rc)
