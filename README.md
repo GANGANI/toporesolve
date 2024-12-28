@@ -136,7 +136,7 @@ curl -X POST -H "Authorization: Basic base64-api-id" -H "Content-Type: text/plai
 ```
 
 <details>
-    <summary>Programmatically, you may also use python's [requests](https://pypi.org/project/requests/) library:</summary>
+    <summary>Programmatically, you may also use python's <a href="https://pypi.org/project/requests/"><code>requests</code></a> library:</summary>
 
 ```py
 import requests
