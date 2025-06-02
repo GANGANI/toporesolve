@@ -87,7 +87,7 @@ def jaccard_sim(str0, str1):
 
 def load_geojson_boundary(is_state):
     try:
-        with open(f'/mnt/c/Users/great/Desktop/news-deserts-nlp-greatness/rule-based/boundaries/{is_state}') as f:
+        with open(f'rule-based/boundaries/{is_state}') as f:
             return json.load(f)
     except FileNotFoundError:
         print(f"No boundary file found for {is_state}.")
