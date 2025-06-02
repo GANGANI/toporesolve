@@ -121,7 +121,7 @@ def get_node_name(id):
 
 def load_geojson_boundary(is_state):
     try:
-        with open(f'C:/Users/great/Desktop/news-deserts-nlp-greatness/rule-based/boundaries/{is_state}') as f:
+        with open(f'rule-based/boundaries/{is_state}') as f:
             return json.load(f)
     except FileNotFoundError:
         print(f"No boundary file found for {is_state}.")
