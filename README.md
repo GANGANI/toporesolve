@@ -1,6 +1,6 @@
 # Toponym disambiguation in news text using traditional geoparsers and LLMs
 
-[Location matters, and not just for real estate](https://doi.org/10.1080/13658816.2017.1368523). Identifying the names of places (*toponyms*) is essential to processing news text, but place names in news text are notoriously ambiguous. For example, the toponym *Paris* could refer to Paris, France or Paris, Texas, or Paris, Virginia, [etc](https://en.wikipedia.org/wiki/Paris_(disambiguation)). Toponym disambiguation or toponym resolution is defined as resolving toponyms to their precise locations (geo-coordinates).
+Identifying the names of places (*toponyms*) is essential to processing news text, but place names in news text are notoriously ambiguous. For example, the toponym *Paris* could refer to Paris, France or Paris, Texas, or Paris, Virginia, [etc](https://en.wikipedia.org/wiki/Paris_(disambiguation)). Toponym disambiguation or toponym resolution is defined as resolving toponyms to their precise locations (geo-coordinates).
 
 Traditional geoparsers like [Mordecai3](https://github.com/ahalterman/mordecai3), [Cliff Clavin](https://github.com/mediacloud/cliff-annotator), [the Edinburgh Parser](https://www.ltg.ed.ac.uk/software/geoparser/), and [DBpedia Spotlight](https://github.com/dbpedia-spotlight/dbpedia-spotlight-model) use rule-based methods, knowledge bases, and statistical models for toponym disambiguation. While effective with domain-specific datasets, these tools often struggle with understanding complex contexts. Large Language Models (LLMs) like GPT and Llama excel at contextual reasoning, and often outperform traditional geoparsers in accuracy and flexibility. However, their high computational demands (powerful GPUs and optimized setups) limit their practicality.
 
@@ -8,9 +8,9 @@ What follows is an exploration of various toponym disambiguation tools (traditio
 
 **TL;DR**
 
-For [traditional geoparsers](https://arxiv.org/pdf/2207.01683), our results show that geopolitical (`GPE`) entities (e.g., countries, states, counties, cities) are the easiest to disambiguate, next are location (`LOC`) entities (e.g., Non-GPE locations, mountain ranges, bodies of water), and then facility (`FAC`) entities (e.g., Buildings, airports, highways, bridges, etc.). Cliff Clavin out-performed other geoparsers for both disambiguating GPEs and LOCs. DBPedia spotlight was the best-performing geoparser for FACs.
+For traditional geoparsers, our results show that geopolitical (`GPE`) entities (e.g., countries, states, counties, cities) are the easiest to disambiguate, next are location (`LOC`) entities (e.g., Non-GPE locations, mountain ranges, bodies of water), and then facility (`FAC`) entities (e.g., Buildings, airports, highways, bridges, etc.). Cliff Clavin out-performed other geoparsers for both disambiguating GPEs and LOCs. DBPedia spotlight was the best-performing geoparser for FACs.
 
-LLMs out-performed traditional geoparsers, with gpt-4o-mini outperforming other general-purpose and fine-tuned LLMs. Gpt-4o-mini API was fast and efficient and cost less $ use.
+LLMs out-performed traditional geoparsers, with gpt-4o outperforming other general-purpose and fine-tuned LLMs. Gpt-4o API was fast and efficient and cost less $ use.
 
 ## Table of Contents
 
@@ -52,8 +52,6 @@ LLMs out-performed traditional geoparsers, with gpt-4o-mini outperforming other 
   </ul>
 </details>
 
-* [Acknowledgements](#acknowledgements)
-
 # Using Windows? Read this.
 
 Most of the tools were developed with Unix (i.e., Linux, Mac) users in mind. We recommend the following to simplify usage for Windows (Windows 11 PC with PowerShell) users:
@@ -81,7 +79,7 @@ All the tools and commands below were run using Ubuntu terminal via WSL, except 
 
 We created three [gold-standard datasets](data/gold_standards) files for three classes of ambiguous toponyms --- `GPE`s, `LOC`s, and `FAC`s --- to evaluate the toponym disambiguation tools. Each file contains 102 randomly selected JSON objects of ambiguous toponyms and their corresponding disambiguated forms - geo-coordinates. To maximize diversity, we randomly extracted two toponyms from local news articles from the state.
 
-Specifically, the `GPE` gold-standard file, [GPE_2024_05_21T134100Z.jsonl](https://github.com/wm-newslab/toponym-disambiguation/blob/nwala_edits/data/gold_standards/GPE_2024_05_21T134100Z.jsonl), consists of the geo-coordinates of ambiguous `GPE`s. Similarly, the `LOC` gold-standard file, [LOC_2024_05_21T134100Z.jsonl](https://github.com/wm-newslab/toponym-disambiguation/blob/nwala_edits/data/gold_standards/LOC_2024_05_21T134100Z.jsonl), contains the geo-coordinates of ambiguous `LOC`s, and [FAC_2024_05_21T134100Z.jsonl](https://github.com/wm-newslab/toponym-disambiguation/blob/nwala_edits/data/gold_standards/FAC_2024_05_21T134100Z.jsonl) - geo-coordinates of ambiguous `FAC`s. The ambiguous toponyms were manually disambiguated using Google search, GeoNames, or OpenStreetMap.
+Specifically, the `GPE` gold-standard file, GPE_2024_05_21T134100Z.jsonl, consists of the geo-coordinates of ambiguous `GPE`s. Similarly, the `LOC` gold-standard file, LOC_2024_05_21T134100Z.jsonl, contains the geo-coordinates of ambiguous `LOC`s, and [FAC_2024_05_21T134100Z.jsonl](https://github.com/wm-newslab/toponym-disambiguation/blob/nwala_edits/data/gold_standards/FAC_2024_05_21T134100Z.jsonl) - geo-coordinates of ambiguous `FAC`s. The ambiguous toponyms were manually disambiguated using Google search, GeoNames, or OpenStreetMap.
 
 ## Data Structure
 Each line of a gold-standard file contains a JSON object with the following fields:
@@ -800,9 +798,3 @@ Though free to use, loading HuggingFace models take a good amount of time and re
 |Recall| **1.0**|0.957|0.813| 0.7561|0.6484|0.7442
 |F1-Score| **0.964**|0.785|0.748| 0.7561|0.7323|0.7707
 
-
-# Acknowledgements
-
-This project benefited from the survey paper ([Location reference recognition from texts: A survey and comparison](https://doi.org/10.1145/3625819)) of [Xuke Hu](https://scholar.google.de/citations?user=xCj17L0AAAAJ&hl=en) et al. and their fine-tuned models Llama2-7B, Llama2-13B, and Mistral7B described in [Toponym resolution leveraging lightweight and open-source large language models and geo-knowledge](https://doi.org/10.1080/13658816.2024.2405182).
-
-Additionally, this work was supported by the computational resources and technical assistance provided by William & Mary Research Computing. Their resources have been instrumental in achieving the results reported here. Learn more at [Research Computing at W&M](https://www.wm.edu/it/rc)
